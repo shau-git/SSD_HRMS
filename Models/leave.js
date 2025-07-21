@@ -131,3 +131,6 @@ const Leave = sequelize.define('leave', {
 },{
     timestamps: false,
 })
+
+
+module.exports = Leave

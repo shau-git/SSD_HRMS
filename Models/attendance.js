@@ -2,7 +2,6 @@ const {DataTypes} = require("sequelize")
 const sequelize = require("../db/dbConnect")
 const {notNull, len} = require("../validation/modelValidation")
 
-
 const Attendance = sequelize.define('attendance', {
     attendance_id: {
         type: DataTypes.SMALLINT,

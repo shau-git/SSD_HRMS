@@ -1,3 +1,5 @@
+const {lenMsg, isNumberMsg, minNumMsg} = require("./erroMessage")
+
 function notEmpty(field) {
     // //reject empty str (" ")
     return {msg: `${field} cannot be empty`}
@@ -8,17 +10,21 @@ function notNull(field) {
 }
 
 function len(start,end,field) {
-    return { args: [start, end], msg: `length of ${field} must be beteen ${start} and ${end}`}
+    return { args: [start, end], msg: lenMsg(start,end,field)}
 }
 
-function isFloat(field) {
-    return {args:true, msg: `${field} must be a number.`}
+function isNumber(field) {
+    return {args:true, msg: isNumberMsg(field)}
 }
 
+function minNum(limit, field) {
+    return {args: [limit], msg: minNumMsg(field)}
+}
 
 module.exports = {
     notEmpty,
     notNull,
     len,
-    isFloat
+    isNumber,
+    minNum
 }

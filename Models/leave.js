@@ -1,12 +1,17 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../db/dbConnect")
-const {notEmpty, notNull, len, isFloat} = require("../validation/modelValidation")
+const {notEmpty, notNull, len, isNumber, minNum} = require("../validation/modelValidation")
 
 const Leave = sequelize.define('leave', {
     leave_id: {
         type: DataTypes.SMALLINT,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
+        validate: {
+            notNull: notNull("Leave ID"),
+            isInt: isNumber("Leave ID"),
+            min: minNum(0, "Leave ID")
+        }
     },
     employee_id: {
         type: DataTypes.SMALLINT,
@@ -16,7 +21,9 @@ const Leave = sequelize.define('leave', {
             key: "employee_id",
         },
         validate: {
-            notNull: notNull("Employee ID")
+            notNull: notNull("Employee ID"),
+            isInt: isNumber("Employee ID"),
+            min: minNum(0, "Employee ID")
         }
     },
     attendance_id: {
@@ -27,7 +34,9 @@ const Leave = sequelize.define('leave', {
             key: "attendance_id",
         },
         validate: {
-            notNull: notNull("Attendance ID")
+            notNull: notNull("Attendance ID"),
+            isInt: isNumber("Attendance ID"),
+            min: minNum(0, "Attendance ID")
         }
     },
     status: {
@@ -115,7 +124,9 @@ const Leave = sequelize.define('leave', {
             key: "employee_id",
         },
         validate: {
-            notNull: notNull("Manager ID")
+            notNull: notNull("Manager ID"),
+            isInt: isNumber("Attendance ID"),
+            min: minNum(0, "Attendance ID")
         }
     },
     remarks: {

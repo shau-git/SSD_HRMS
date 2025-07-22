@@ -1,12 +1,17 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../db/dbConnect")
-const {notEmpty, notNull, len, isFloat} = require("../validation/modelValidation")
+const {notEmpty, notNull, len, isNumber, minNum} = require("../validation/modelValidation")
 
 const Employee = sequelize.define('employees', {
     employee_id: {
         type: DataTypes.SMALLINT,
         primaryKey: true,
         autoIncrement: true,
+        validate: {
+            notNull: notNull("Employee ID"),
+            isInt: isNumber("Employee ID"),
+            min: minNum(0, "Employee ID")
+        }
     },
     first_name: {
         type: DataTypes.STRING(30),
@@ -38,7 +43,7 @@ const Employee = sequelize.define('employees', {
                 msg: "Please enter a valid email address."
             },
             notEmpty: notEmpty("Email"),
-            len: len(1,80,"Email")
+            len: len(10,80,"Email")
         }
     },
     hashed_password:{
@@ -57,24 +62,13 @@ const Employee = sequelize.define('employees', {
             notNull: notNull("is_active"),
         }
     },
-    shift_type: {
-        type: DataTypes.STRING,     //shift type
-        allowNull: false,
-        validate: {
-            notNull: notNull("Shift Type"),
-            notEmpty: notEmpty("Shift Type"),
-        }
-    },
     medical_leave: {
         type: DataTypes.FLOAT,
         allowNull: false,
         validate: {
             notNull: notNull("Medical Leave"),
-            isFloat: isFloat("Medical Leave"),
-            min: {
-                args: [0],
-                msg: "Medical Leave cannot be negative."
-            }
+            isFloat: isNumber("Medical Leave"),
+            min: minNum(0, "Medical Leave")
         }
     }, 
     annual_leave: {
@@ -82,11 +76,8 @@ const Employee = sequelize.define('employees', {
         allowNull: false,
         validate: {
             notNull: notNull("Annual Leave"),
-            isFloat: isFloat("Annual Leave"),
-            min: {
-                args: [0],
-                msg: "Annual Leave cannot be negative."
-            }
+            isFloat: isNumber("Annual Leave"),
+            min: minNum(0, "Annual Leave")
         }
     },
     created_at: {
@@ -105,9 +96,12 @@ const Employee = sequelize.define('employees', {
             key: "employee_id",
         },
         validate: {
-            notNull: notNull("Manager ID")
+            notNull: notNull("Manager ID"),
+            isInt: isNumber("Manager ID"),
+            min: minNum(0, "Manager ID")
         }
     }
+    
 }, {
   // Other model options go here
   //tableName: 'employees', // Optional: specify table name, defaults to plural 'Users'

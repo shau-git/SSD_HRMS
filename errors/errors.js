@@ -10,3 +10,8 @@ module.exports = {
     NotFoundError,
     UnauthenticatedError
 }
+
+
+/*
+these all are self custom error classes, all inherit the error class
+*/

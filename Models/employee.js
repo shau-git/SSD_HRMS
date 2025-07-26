@@ -1,12 +1,51 @@
-const {DataTypes} = require("sequelize")
+const {DataTypes, Model} = require("sequelize")
 const sequelize = require("../db/dbConnect")
-const {notEmpty, notNull, len, isNumber, minNum} = require("../validation/modelValidation")
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const {notEmpty, notNull, len, isNumber, minNum} = require("../Middlewares/validation/validationAdHoc")
 
-const Employee = sequelize.define('employees', {
+
+
+class Employee extends Model {
+    // Password hashing hook (equivalent to Mongoose pre-save)
+    static async beforeSave(user) {
+        if (user.changed('hashed_password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.hashed_password = await bcrypt.hash(user.hashed_password, salt);
+        }
+    }
+
+    // Instance method to create JWT (equivalent to Mongoose methods)
+    createJWT() {
+        return jwt.sign(
+        { userId: this.employee_id, role: this.role },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_LIFETIME }
+        );
+    }
+
+    // Instance method to compare passwords
+    async comparePassword(candidatePassword) {
+        return await bcrypt.compare(candidatePassword, this.hashed_password);
+    }
+
+    // Instance method to format employee name
+    static formatName(name) {
+        // remove extra spaces and capitalize the first letter.
+        // Ex: Convert 'uchiha    maDara ' => 'Uchiha Madara'
+        return name.replace(/\s+/g, ' ').replace(/\b\w/g, char => char.toUpperCase())
+                                
+    }
+
+}
+
+
+Employee.init({
     employee_id: {
         type: DataTypes.SMALLINT,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false, 
         validate: {
             notNull: notNull("Employee ID"),
             isInt: isNumber("Employee ID"),
@@ -62,6 +101,17 @@ const Employee = sequelize.define('employees', {
             notNull: notNull("is_active"),
         }
     },
+    role: {
+        type: DataTypes.STRING(1),
+        allowNull: false,
+        validate: {
+            notNull: notNull("Role"),
+            isIn: {
+                args: [['A', 'E', 'W']],  // Note the array of arrays
+                msg: "Role must be one of: 'A (for Admin)', 'E (for Employer)' or 'W (for Worker)' "
+            },
+        }
+    },
     medical_leave: {
         type: DataTypes.FLOAT,
         allowNull: false,
@@ -101,11 +151,13 @@ const Employee = sequelize.define('employees', {
             min: minNum(0, "Manager ID")
         }
     }
-    
-}, {
-  // Other model options go here
-  //tableName: 'employees', // Optional: specify table name, defaults to plural 'Users'
-  timestamps: false, // disable createdAt and updatedAt columns, else they will be created by sequelize
+},{
+    sequelize,
+    modelName: 'employees',
+    timestamps: false,
+    hooks: {
+        beforeSave: Employee.beforeSave
+    }
 })
 
 

@@ -1,12 +1,13 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../db/dbConnect")
-const {notNull, len, isNumber, minNum} = require("../validation/modelValidation")
+const {notNull, len, isNumber, minNum} = require("../validation/validationAdHoc")
 
 const Attendance = sequelize.define('attendance', {
     attendance_id: {
         type: DataTypes.SMALLINT,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false, 
         validate: {
             notNull: notNull("Attendance ID"),
             isInt: isNumber("Attendance ID"),
@@ -35,7 +36,6 @@ const Attendance = sequelize.define('attendance', {
             key: "leave_id",
         },
         validate: {
-            notNull: notNull("Leave ID"),
             isInt: isNumber("Leave ID"),
             min: minNum(0, "Leave ID")
         }
@@ -76,7 +76,7 @@ const Attendance = sequelize.define('attendance', {
         defaultValue: null,
         validate: {
             isAfterSubmit(value) {
-                if (value && value < this.edit_date_time) {
+                if (value && value >= this.edit_date_time) {
                     throw new Error('Response time must be after submission time');
                 }
             }
@@ -88,7 +88,7 @@ const Attendance = sequelize.define('attendance', {
         defaultValue: null,
         validate: {
             isAfterSubmit(value) {
-                if (value && value < this.edit_date_time) {
+                if (value && value >= this.edit_date_time) {
                     throw new Error('Response time must be after submission time');
                 }
             }
@@ -114,12 +114,20 @@ const Attendance = sequelize.define('attendance', {
         }
     },
     remarks: {
-        type: DataTypes.STRING(60),
+        type: DataTypes.STRING(40),
         allowNull: true,
         defaultValue: null,
         validate: {
-            len: len(1,60,"Remarks")
+            len: len(1,40,"Remarks")
         }
+    },
+    read: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            notNull: notNull("Read")
+        }        
     },
     manager_id: {
         type: DataTypes.SMALLINT,

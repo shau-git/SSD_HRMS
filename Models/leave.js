@@ -1,12 +1,13 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../db/dbConnect")
-const {notEmpty, notNull, len, isNumber, minNum} = require("../validation/modelValidation")
+const {notEmpty, notNull, len, isNumber, minNum} = require("../Middlewares/validation/validationAdHoc")
 
 const Leave = sequelize.define('leave', {
     leave_id: {
         type: DataTypes.SMALLINT,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false, 
         validate: {
             notNull: notNull("Leave ID"),
             isInt: isNumber("Leave ID"),
@@ -58,7 +59,7 @@ const Leave = sequelize.define('leave', {
             notEmpty: notEmpty("Type"),
             isIn: {
                 args: [['AL', 'ML']],  // Note the array of arrays
-                msg: "Leave type must be one of: 'AL (for Annual Leave)' or 'ML (for Medical Leave)'"
+                msg: "Leave type must be one of: 'AL' (for Annual Leave) or 'ML' (for Medical Leave)"
             },
         }  
     },
@@ -130,13 +131,13 @@ const Leave = sequelize.define('leave', {
         }
     },
     remarks: {
-        type: DataTypes.STRING(60),
+        type: DataTypes.STRING(40),
         allowNull: false,
         defaultValue: null,
         validate: {
             notNull: notNull("Remarks"),
             notEmpty: notEmpty("Remarks"),
-            len: len(1,60,"Remarks")
+            len: len(1,40,"Remarks")
         }
     }
 },{

@@ -17,6 +17,6 @@ const payload = {
     first_name: null
 }
 
+payload['employee_id'] = 1
 
-const res = schema.validate(payload)
-console.log(res.error.message)
+console.log(Boolean("false"))

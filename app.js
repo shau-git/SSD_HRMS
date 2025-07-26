@@ -1,44 +1,33 @@
 const express = require('express');
 const sequelize = require('./db/dbConnect');
 // const userRoutes = require('./routes/users');
-require('dotenv').config(); // Load environment variables from .env file
-const PORT = process.env.PORT || 3012; // Use PORT from .env or default to 3012
+require('dotenv').config(); 
+const PORT = process.env.PORT || 3012; 
 
 const app = express();
 app.use(express.json());
 // app.use('/users', userRoutes);
 
-const Employee = require("./Models/employee")
-app.post('/Employee' , async (req, res) => {
-    try {
-      //  req.body.created_at = sequelize.literal("CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Singapore'")
-        console.log(req.body)
-        const employee = await Employee.create(req.body)
-        console.log(employee)
-        res.status(201).json({msg: "done"})
-    } catch(error) {
-        const errorMsg = error
-        console.log(error)
-        res.status(500).json({msg:error})
-    }
-})
+// middleware
+// validation
+
+// errorHandling
+const errorHandlerMiddleware = require("./Middlewares/errorHandler/errorHandler")
+
+// routers
+const authRouter = require("./routers/authRouter")
+const employeesRouter = require("./routers/employeeRouter")
+
+// routes
+app.use('/api/auth',authRouter)
+app.use('/api/employee', employeesRouter)
 
 
-app.get('/Employee', async(req, res) => {
-    try {
-        const employee = await Employee.findAll()
-        res.status(200).json(employee)
-    } catch (error) {
-        //const errorMsg = error
-        console.log(error)
-        res.status(500).json({msg: error})
-    }
-
-})
+// handling error
+app.use(errorHandlerMiddleware)
 
 
-
-
+// Database connection
 sequelize.authenticate()
     .then(() => {
         console.log('DB connected successfully.');

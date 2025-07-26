@@ -20,11 +20,11 @@ const attendanceSchema = Joi.object({
             'number.integer': 'Employee ID must be an integer.',
             'number.positive': 'Employee ID must be a positive number.'
     }),
-
     leave_id: Joi.number()
         .integer()
         .positive() 
         .allow(null) // allowNull: true, defaultValue: null
+        .default(null)
         .messages({
             'number.base': 'Leave ID must be a number.',
             'number.integer': 'Leave ID must be an integer.',
@@ -32,9 +32,8 @@ const attendanceSchema = Joi.object({
     }),
 
     is_amended: Joi.boolean()
-        .required()
+        .default(false)
         .messages({
-            'any.required': 'is_amended is required.',
             'boolean.base': 'is_amended must be a boolean.'
     }),
 
@@ -42,6 +41,7 @@ const attendanceSchema = Joi.object({
         .iso() // Expects ISO 8601 date string, which is good practice for APIs
         .allow(null) // allowNull: true. Though your default is CURRENT_TIMESTAMP, for input, it can be null.
                      // If you always expect it on input, change to .required()
+        .default(null)
         .messages({
             'date.base': 'Clock in must be a valid date.',
             'date.iso': 'Clock in must be an ISO 8601 date string.'
@@ -50,6 +50,7 @@ const attendanceSchema = Joi.object({
     clock_out: Joi.date()
         .iso()
         .allow(null)
+        .default(null)
         // Custom validation for clock_out to be after clock_in
         .when('clock_in', {
             is: Joi.exist().not(null), // Only apply this rule if clock_in exists and is not null
@@ -66,6 +67,7 @@ const attendanceSchema = Joi.object({
     edit_date_time: Joi.date()
         .iso()
         .allow(null)
+        .default(null)
         .messages({
             'date.base': 'Edit date time must be a valid date.',
             'date.iso': 'Edit date time must be an ISO 8601 date string.'
@@ -74,6 +76,7 @@ const attendanceSchema = Joi.object({
     response_date_time: Joi.date()
         .iso()
         .allow(null)
+        .default(null)
         // Custom validation for response_date_time to be after edit_date_time
         .when('edit_date_time', {
             is: Joi.exist().not(null),
@@ -90,6 +93,7 @@ const attendanceSchema = Joi.object({
     withdraw_date_time: Joi.date()
         .iso()
         .allow(null)
+        .default(null)
         // Custom validation for withdraw_date_time to be after edit_date_time
         .when('edit_date_time', {
             is: Joi.exist().not(null),
@@ -105,6 +109,7 @@ const attendanceSchema = Joi.object({
 
     is_ot: Joi.boolean()
         .required()
+        .default(false)
         .messages({
             'any.required': 'is_ot is required.',
             'boolean.base': 'is_ot must be a boolean.'
@@ -114,6 +119,7 @@ const attendanceSchema = Joi.object({
         .integer()
         .min(0)
         .max(1440)
+        .default(null)
         .allow(null) // If it can be null (before clock_out is set), then allow null
                      // If it's always calculated and shouldn't be provided, remove from schema or make it optional for updates only.
         .messages({
@@ -124,16 +130,23 @@ const attendanceSchema = Joi.object({
     }),
 
     remarks: Joi.string()
-        .max(60)
-        .allow(null, '') // Allow null or empty string as per defaultValue: null
+        .max(40)
+        .allow(null) // Allow null string as per defaultValue: null
+        .default(null)
         .messages({
             'string.base': 'Remarks must be a string.',
-            'string.max': 'Remarks cannot exceed 60 characters.'
+            'string.max': 'Remarks cannot exceed 40 characters.'
+    }),
+    read: Joi.boolean()
+        .default(true)
+        .messages({
+            'boolean.base': 'Read must be a boolean.'
     }),
 
     manager_id: Joi.number()
         .integer()
         .positive()
+        .required()
         .messages({
             'number.base': 'Manager ID must be a number.',
             'number.integer': 'Manager ID must be an integer.',
@@ -141,5 +154,13 @@ const attendanceSchema = Joi.object({
             'any.required':'Manager ID is required'
     })
 });
+
+// For validating create operations (where employee_id and created_at might be auto-generated)
+const createEmployeeSchema = employeeSchema.keys({
+    employee_id: Joi.forbidden(), // Not allowed in create
+    created_at: Joi.forbidden() // Not allowed in create
+});
+
+
 
 module.exports = attendanceSchema;

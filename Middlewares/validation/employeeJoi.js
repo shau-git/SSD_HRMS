@@ -1,19 +1,20 @@
 const Joi = require("joi")
+const {joiErrorMessage} = require("./erroMessage")
 
 // Validation schema for Employee (used for POST/PUT)
 const employeeSchema = Joi.object({
-    first_name: Joi.string().min(1).max(30).required().messages({
+    first_name: Joi.string().min(1).max(20).required().messages({
         "string.base": "First Name must be a string",
         "string.empty": "First Name cannot be empty",
         "string.min": "First Name must be at least 1 character long",
-        "string.max": "First Name cannot exceed 30 characters",
+        "string.max": "First Name cannot exceed 20 characters",
         "any.required": "First Name is required",
     }),
-    last_name: Joi.string().min(1).max(30).required().messages({
+    last_name: Joi.string().min(1).max(20).required().messages({
         "string.base": "Last Name must be a string",
         "string.empty": "Last Name cannot be empty",
         "string.min": "Last Name must be at least 1 character long",
-        "string.max": "Last Name cannot exceed 30 characters",
+        "string.max": "Last Name cannot exceed 20 characters",
         "any.required": "Last Name is required",
     }),
     email: Joi.string()
@@ -31,20 +32,28 @@ const employeeSchema = Joi.object({
             'string.pattern.base': 'Only @company.com email addresses are allowed',
             'any.required': 'Email is required'
     }),
-    hashed_password: Joi.string()
+    hashed_password: Joi.string() 
         .required()
-        .pattern(/^\$2[aby]\$\d+\$[./0-9A-Za-z]{53}$/)
+        //.pattern(/^\$2[aby]\$\d+\$[./0-9A-Za-z]{53}$/)
         .messages({
-            "string.base": "Password must be a string",
-            "string.empty": "Password cannot be empty",     
-            "string.pattern.base": "Password invalid, make sure the password was hashed.",
-            "any.required": "Password is required."
+            'string.base': 'Password must be a string',
+            'string.empty': 'Password cannot be empty',     
+            //'string.pattern.base': 'Password invalid, make sure the password was hashed',
+            'any.required': 'Password is required'
     }),
     is_active: Joi.boolean()
-        .required()
+        .default(true)
         .messages({
             'boolean.base': 'is_active must be a boolean',
-            'any.required': 'is_active is required'
+    }),
+    role: Joi.string()
+        .required()
+        .valid('A', 'W', 'E')
+        .messages({
+            'string.base': 'Role must be a string',
+            'string.empty': 'Role cannot be empty', 
+            'any.required': 'Role is required',
+            'any.only': "Role must be one of: 'A (for Admin)', 'E (for Employer)' or 'W (for Worker)'"
     }),
     medical_leave: Joi.number()
         .precision(2)
@@ -100,24 +109,18 @@ const updateEmployeeSchema = employeeSchema.keys({
 
 
 
-function errorMessage(error) {
-    // If validation fails, format the error messages and send a 400 response
-    const errorMessage = error.details
-        .map((detail) => detail.message)
-        .join(", ")
-    // console.log(typeof errorMessage) string
-    return errorMessage
-    
-}
+
 
 
 
 // Middleware to validate empployee data (for POST)
 function validateCreateEmployee(req, res, next) {
     const { error } = createEmployeeSchema.validate(req.body, { abortEarly: false })
-
+    // console.log(Object.keys(error))
+    console.log(error)
+    console.log("here")
     if(error) {
-        return res.status(400).json({error: errorMessage(error)})
+        return res.status(400).json({error: joiErrorMessage(error)})
     }
 
     // If validation succeeds, pass control to the next middleware/route handler
@@ -129,32 +132,15 @@ function validateUpdateEmployee(req, res, next) {
     const { error } = updateEmployeeSchema.validate(req.body, { abortEarly: false })
 
     if(error) {
-        return res.status(400).json({error: errorMessage(error)})
+        return res.status(400).json({error: joiErrorMessage(error)})
     }
 
     // If validation succeeds, pass control to the next middleware/route handler
     next()
 }
 
-function validateEmployeeId(req, res, next) {
-    // Parse the ID from request parameters
-    const id = parseInt(req.params.id);
-
-    // Check if the parsed ID is a valid positive number
-    if (isNaN(id) || id <= 0) {
-        // If not valid, send a 400 response
-        return res
-        .status(400)
-        .json({ error: "Invalid Employee ID. ID must be a positive number" });
-    }
-
-    // If validation succeeds, pass control to the next middleware/route handler
-    next();
-}
-
 
 module.exports = {
     validateCreateEmployee, 
     validateUpdateEmployee,
-    validateEmployeeId
 }

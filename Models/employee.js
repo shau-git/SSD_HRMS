@@ -2,23 +2,23 @@ const {DataTypes, Model} = require("sequelize")
 const sequelize = require("../db/dbConnect")
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {notEmpty, notNull, len, isNumber, minNum} = require("../Middlewares/validation/validationAdHoc")
+const {notEmpty, notNull, len, isNumber, minNum} = require("./utils/validationUtils")
 
 
 
 class Employee extends Model {
-    // Password hashing hook (equivalent to Mongoose pre-save)
-    static async beforeSave(user) {
-        if (user.changed('hashed_password')) {
+    // hased the password before saving
+    static async hashPassword(employee) {
+        // check if the hashed_password field modified before
         const salt = await bcrypt.genSalt(10);
-        user.hashed_password = await bcrypt.hash(user.hashed_password, salt);
-        }
+        employee.hashed_password = await bcrypt.hash(employee.hashed_password, salt);
+        return employee
     }
 
     // Instance method to create JWT (equivalent to Mongoose methods)
     createJWT() {
         return jwt.sign(
-        { userId: this.employee_id, role: this.role },
+        { employee_id: this.employee_id, role: this.role },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_LIFETIME }
         );
@@ -55,6 +55,9 @@ Employee.init({
     first_name: {
         type: DataTypes.STRING(30),
         allowNull: false,  
+        set(value) {
+            this.setDataValue('first_name', value.trimEnd());
+        },
         validate: {
             notNull: notNull("First Name"),
             notEmpty: notEmpty("First Name"),
@@ -64,6 +67,9 @@ Employee.init({
     last_name: {
         type: DataTypes.STRING(30),
         allowNull: false,
+        set(value) {
+            this.setDataValue('last_name', value.trimEnd());
+        },
         validate: {
             notNull: notNull("Last Name"),
             notEmpty: notEmpty("Last Name"),
@@ -75,6 +81,9 @@ Employee.init({
         type: DataTypes.STRING(80),
         allowNull: false,
         unique: true, // database will reject duplicates
+        set(value) {
+            this.setDataValue('email', value.trimEnd());
+        },
         validate: {
             isEmail: {
                 notNull: notNull("Email"),
@@ -104,6 +113,11 @@ Employee.init({
     role: {
         type: DataTypes.STRING(1),
         allowNull: false,
+        set(value) {
+            if (typeof value === 'string') {
+                this.setDataValue('role', value.trim().toUpperCase());
+            }
+        },
         validate: {
             notNull: notNull("Role"),
             isIn: {
@@ -138,6 +152,14 @@ Employee.init({
             notNull: notNull("created_at")
         }
     },
+    is_new: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+        validate: {
+            notNull: notNull("is_new"),
+        }
+    },
     manager_id: {
         type: DataTypes.SMALLINT,
         allowNull: false,
@@ -155,9 +177,15 @@ Employee.init({
     sequelize,
     modelName: 'employees',
     timestamps: false,
-    hooks: {
-        beforeSave: Employee.beforeSave
-    }
+    defaultScope: {
+      where: {
+        is_active: true
+      }
+    },
+
+    // hooks: {
+    //     beforeSave: Employee.beforeSave
+    // }
 })
 
 

@@ -1,7 +1,7 @@
-const {lenMsg, isNumberMsg, minNumMsg} = require("./erroMessage")
+const {lenMsg, isNumberMsg, minNumMsg} = require("./errorMessage")
 
 function notEmpty(field) {
-    // //reject empty str (" ")
+    // reject empty str (" ")
     return {msg: `${field} cannot be empty`}
 }
 

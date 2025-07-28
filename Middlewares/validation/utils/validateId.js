@@ -1,6 +1,6 @@
 function validateId(req, res, next) {
     // Parse the ID from request parameters
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.employee_id);
 
     // Check if the parsed ID is a valid positive number
     if (isNaN(id) || id <= 0) {

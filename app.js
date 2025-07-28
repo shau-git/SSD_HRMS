@@ -9,7 +9,8 @@ app.use(express.json());
 // app.use('/users', userRoutes);
 
 // middleware
-// validation
+// authentication
+const authenticateUser = require("./Middlewares/authentication/authentication")
 
 // errorHandling
 const errorHandlerMiddleware = require("./Middlewares/errorHandler/errorHandler")
@@ -20,7 +21,7 @@ const employeesRouter = require("./routers/employeeRouter")
 
 // routes
 app.use('/api/auth',authRouter)
-app.use('/api/employee', employeesRouter)
+app.use('/api/employee', authenticateUser, employeesRouter)
 
 
 // handling error

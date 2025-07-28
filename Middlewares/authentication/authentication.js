@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken")
-const UnauthenticatedError = require("../errors/unauthenticated")
+const UnauthenticatedError = require("../../errors/unauthenticated")
 
 const auth = async(req, res, next) => {
 
@@ -16,6 +16,7 @@ const auth = async(req, res, next) => {
 
         // verifying the token
         const payload = jwt.verify(token, process.env.JWT_SECRET)
+        console.log(payload)
 
         // attach the jwt token payload to the req
         req.employee = {employee_id: payload.employee_id, role: payload.role }

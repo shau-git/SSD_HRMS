@@ -43,6 +43,11 @@ const Leave = sequelize.define('leave', {
     status: {
         type: DataTypes.STRING(8),
         allowNull: false,
+        set(value) {
+            if (typeof value === 'string') {
+                this.setDataValue('status', value.trim().toUpperCase());
+            }
+        },        
         validate: {
             notNull: notNull("Status"),
             isIn: {
@@ -54,6 +59,11 @@ const Leave = sequelize.define('leave', {
     type: {
         type: DataTypes.CHAR(2),
         allowNull: false,      
+        set(value) {
+            if (typeof value === 'string') {
+                this.setDataValue('type', value.trim().toUpperCase());
+            }
+        },  
         validate: {
             notNull: notNull("Type"),
             notEmpty: notEmpty("Type"),

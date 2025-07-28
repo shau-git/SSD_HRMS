@@ -20,3 +20,16 @@ const payload = {
 payload['employee_id'] = 1
 
 console.log(Boolean("false"))
+
+
+const prices = [5, 30, 10,25,15,20]
+
+function sum(acc, el) {
+    console.log(acc, el)
+    return acc + el
+}
+
+console.log('here')
+prices.unshift(1)
+
+console.log(prices)

@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config()
 
+// the url to connect to the database
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {

@@ -1,10 +1,10 @@
-const Employee = require("./Models/employee")
+const Employee = require("./models/employee")
 
 const adminData = {
-    "first_name": "shau",
-    "last_name": "jie",
-    "email": "worker4@company.com",
-    "role": "w",
+    "first_name": "admin",
+    "last_name": "Boss",
+    "email": "admin@company.com",
+    "role": "A",
     "medical_leave": 14,
     "annual_leave": 14,
     "manager_id": 1,

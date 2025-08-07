@@ -48,11 +48,19 @@ const baseEmployeeSchema = Joi.object({
         }),
     annual_leave: Joi.number().precision(2).min(0)
         .messages({
-                'number.base': 'Annual Leave must be a number',
-                'number.min': 'Annual Leave cannot be negative',
+            'number.base': 'Annual Leave must be a number',
+            'number.min': 'Annual Leave cannot be negative',
         }),
-    created_at: Joi.date().iso(),
-    manager_id: Joi.number().integer().min(1),
+    created_at: Joi.date().iso()
+        .messages({
+            'date.base': 'Created datetime must be a valid date',
+            'date.iso': 'Created datetime must be in ISO 8601 format',
+        }),
+    manager_id: Joi.number().integer().min(1)
+        .messages({
+            'number.base': 'Manager ID must be a number',
+            'number.min': 'Manager ID cannot be negative',
+        }),
     employee_id: Joi.any().forbidden().messages({'any.unknown': 'Changing id is not allowed'}) // Always forbidden in both create/update
 });
 

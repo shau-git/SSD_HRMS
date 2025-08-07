@@ -10,19 +10,21 @@ app.use(express.json());
 
 // middleware
 // authentication
-const authenticateUser = require("./Middlewares/authentication/authentication")
-
+const authenticateUser = require("./Middlewares/auth/authentication")
 // errorHandling
 const errorHandlerMiddleware = require("./Middlewares/errorHandler/errorHandler")
+// check if the user login in the first time
+const is_new = require("./Middlewares/auth/is_new")
 
 // routers
 const authRouter = require("./routers/authRouter")
 const employeesRouter = require("./routers/employeeRouter")
+const attendanceRouter = require("./routers/attendanceRouter")
 
 // routes
 app.use('/api/auth',authRouter)
 app.use('/api/employee', authenticateUser, employeesRouter)
-
+app.use('/api/attendance', authenticateUser, is_new, attendanceRouter) //, is_new,
 
 // handling error
 app.use(errorHandlerMiddleware)
@@ -42,3 +44,4 @@ sequelize.authenticate()
         console.error('Unable to connect to the database:', error);
         process.exit(1); // Exit process if DB connection fails
     });
+

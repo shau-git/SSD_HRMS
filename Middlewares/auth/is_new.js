@@ -1,5 +1,5 @@
 const {StatusCodes} = require("http-status-codes")
-const Employee = require("../../Models/employee")
+const Employee = require("../../models/employee")
 const {NotFoundError} = require("../../errors/errors")
 
 // Check if the user login to the account first time
@@ -22,7 +22,7 @@ const is_new = async(req, res, next) => {
     }
     // if user/employee login to account first time, inform them to change password
     if(employee.is_new === true) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({
+        return res.status(StatusCodes.FORBIDDEN).json({
             msg: "Please change your password",
             employee: response ,
         })

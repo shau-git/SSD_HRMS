@@ -20,9 +20,11 @@ function joiErrorMessage(error) {
         */
         const key = error.path[0]//.join('.'); (ex: 'role', 'email')
 
-        // if not acc =  {role: []}, then make it 
-        // acc['role'] = []
-        // acc['role'].push(error.message)
+        /* 
+            if not acc =  {role: []}, then make it 
+            acc['role'] = []
+            acc['role'].push(error.message)
+         */
         if (!acc[key]) acc[key] = [];
         acc[key].push(error.message);
         return acc;
@@ -32,7 +34,11 @@ function joiErrorMessage(error) {
     
 }
 
+function forbiddenMsg(field) {
+    return `Submitting ${field} is not allowed.`
+}
 
 module.exports = {
     joiErrorMessage,
+    forbiddenMsg
 }

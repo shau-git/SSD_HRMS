@@ -17,7 +17,8 @@ reqQuery = {
 
 const SPECIAL_CASE_COLS = {
     capitalize: ['status', 'type', 'role'], // field that the value should be capitalized
-    numeric: ['employee_id', 'attendance_id', 'leave_id', 'manager_id', 'total_min_work'] // field that store int
+    numeric: ['employee_id', 'attendance_id', 'leave_id', 'manager_id', 'total_min_work', 'total_min_adjusted'], // field that store int
+    datetime: ['start_date_time', 'end_date_time']
 };
 
 /**

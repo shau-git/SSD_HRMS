@@ -1,7 +1,9 @@
 const {StatusCodes} = require("http-status-codes")
-const Employee = require("../Models/employee")
-const {NotFoundError, BadRequestError, UnauthenticatedError, ForbiddenError} = require("../errors/errors")
+const Employee = require("../models/employee")
+const {NotFoundError, BadRequestError,  ForbiddenError} = require("../errors/errors")
 const {parseReqQuery} = require("./utils/controllerUtils")
+const asyncWrapper = require("./utils/async")
+const { getDataWithSGT}= require("./utils/convertToSGT")
 
 // GET ALL employee
 const getAllEmployees = async(req,res) => {
@@ -17,11 +19,12 @@ const getAllEmployees = async(req,res) => {
     // prepare the queryObject variable to store parsed query string
     const queryObject = {where: {}}
 
-    // parsing the query string
+    // parsing the query string, queryObject will be affected
     parseReqQuery(queryObject, req.query)
-    console.log("yoyo", queryObject)
+
     // if is employer/manager visiting this route, only allow them to query all of its employee result
-    // so it will the employer would not able to query their data from here, so they need to go get their data in getOneEmployee  
+    // so it will the employer would not able to query their data from here
+    // will append it to the employee data after query thems
     if (payload.role === 'E') {
         queryObject.where.manager_id = payload.employee_id
         employerData = await Employee.findByPk(payload.employee_id)
@@ -32,16 +35,18 @@ const getAllEmployees = async(req,res) => {
 
     }
 
-    console.log("lidou",Object.keys(queryObject.where.employee_id))
-
     // start executing the GET request
     let employees = await Employee.findAll(queryObject)
 
+    // add the employer data to the employee data array
     if(employerData) {
         employees.unshift(employerData)
     }
 
-    return res.status(StatusCodes.OK).json({total: employees.length, employees})
+    // convert all the datetime field to SGT for view
+    const responseWithSGT = getDataWithSGT(employees)
+
+    return res.status(StatusCodes.OK).json({total: employees.length, employees: responseWithSGT})
 }
 
 
@@ -65,7 +70,10 @@ const getOneEmployee = async(req, res) => {
         } 
     }
 
-    return res.status(StatusCodes.OK).json({total: employee.length, employee})
+    // convert all the datetime field to SGT for view
+    const responseWithSGT = getDataWithSGT(employee)
+
+    return res.status(StatusCodes.OK).json({total: employee.length, employee: responseWithSGT})
 }
 
 
@@ -142,24 +150,27 @@ const updateEmployee = async(req, res) => {
 
     // get the newly updated employee data
     updatedEmployee = await Employee.findByPk(employee.employee_id) //[1]
-    //console.log(updatedEmployee)
-    return res.status(StatusCodes.OK).json({total: updatedEmployee.length, updatedEmployee})
+
+    // convert all the datetime field to SGT for view
+    const responseWithSGT = getDataWithSGT(updatedEmployee)
+
+    return res.status(StatusCodes.OK).json({total: responseWithSGT.length, employee: responseWithSGT})
 
 }
 
  
-// DELETE employee
+// DELETE employee (only admin is authorized)
 const deleteEmployee = async(req,res) => {
 
     // get the payload that is attached in the req.employee
-    const payload = req.employee
+    // const payload = req.employee
 
-    console.log(payload)
+    // console.log(payload)
 
-    // only Admin can delete an account
-    if(payload.role !== 'A') {
-        throw new ForbiddenError("This side is forbidden")
-    }
+    // // only Admin can delete an account
+    // if(payload.role !== 'A') {
+    //     throw new ForbiddenError("This side is forbidden")
+    // }
 
     // get the employee_id from the request parameter
     const {employee_id} = req.params

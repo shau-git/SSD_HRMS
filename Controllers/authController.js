@@ -1,6 +1,7 @@
-const Employee = require("../Models/employee")
+const Employee = require("../models/employee")
 const {StatusCodes} = require("http-status-codes")
 const {BadRequestError, UnauthenticatedError, ForbiddenError} = require("../errors/errors")
+const { getDataWithSGT }= require("./utils/convertToSGT")
 
 // POST employee
 const register = async(req, res) => {
@@ -31,7 +32,6 @@ const register = async(req, res) => {
 
     // hashing the password, and get the new req.body
     newEmployee  = await Employee.hashPassword(newEmployee)
-    console.log('hereeeee', newEmployee)
 
     // insert employee data to DB
     const employee = await Employee.create(newEmployee)
@@ -39,7 +39,9 @@ const register = async(req, res) => {
     // Genrenate JWT token
     const token = employee.createJWT()
 
-    res.status(StatusCodes.CREATED).json({employee, token })
+    const responseWithSGT = getDataWithSGT(employee)
+
+    res.status(StatusCodes.CREATED).json({employee: responseWithSGT, token })
 
 }
 

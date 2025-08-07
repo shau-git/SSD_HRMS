@@ -98,11 +98,6 @@ const Leave = sequelize.define('leave', {
         defaultValue: sequelize.literal("CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Singapore'"),
         validate: {
             notNull: notNull("Submit date/time"),
-            isAfterSubmit(value) {
-                if (value && value < this.submit_date_time) {
-                    throw new Error('Response time must be after submission time');
-                }
-            }
         },
     },
     response_time: {

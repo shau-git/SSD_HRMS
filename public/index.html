@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login In Page</title>
+    <link rel="stylesheet" href="./style/loginPage.css" />
+</head>
+<body>
+    <!--main>
+
+        <form class="form contact-form">
+            <h5>login/register</h5>
+            <div class="form-row">
+                <label for="username" class="form-label">username</label>
+                <input type="text" class="form-input username-input" />
+            </div>
+            <div class="form-row">
+                <label for="password" class="form-label">password</label>
+                <input type="password" class="form-input password-input" />
+            </div>
+            <div class="text-small form-alert">there was an error</div>
+            <button type="submit" class="btn btn-block">submit</button>
+        </form>
+
+        <div class="container">
+            <h4>Dashboard</h4>
+            <p class="token">no token present</p>
+            <div class="result"></div>
+            <button class="btn btn-block" id="data">get data</button>
+        </div>
+
+    </!--main-->
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm" onsubmit="return loginUser(event)">
+            <label for="email">Email</label>
+            <input type="email" placeholder="@company.com" class="email" required>
+
+            <label for="password">Password</label>
+            <input type="password" placeholder="Password" class="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div id="errMsg"></div>
+    </div>
+
+    
+
+    <script src="./scripts/loginPage.js"></script>
+</body>
+</html>

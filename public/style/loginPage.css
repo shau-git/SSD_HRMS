@@ -1,0 +1,55 @@
+body {
+  display: flex;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  /*align-items: center;*/
+  /*height: 100vh;*/
+  height: 500px;
+  margin: 0;
+  margin-top: 100px;
+}
+.login-container {
+  background-color: rgb(255, 255, 255);
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+label[type="email"],
+label[type="password"] {
+    display: block;
+}
+
+
+input[type="email"],
+input[type="password"] {
+  width: calc(100% - 20px);;
+  padding: 8px;
+  margin: 10px 0;
+
+  border: 1px solid rgb(204, 204, 204);
+  border-radius: 4px;
+}
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: rgb(76, 175, 80);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 50px;
+}
+button:hover {
+  background-color: rgb(69, 160, 73);
+}
+
+.errMsg {
+    margin-top: 50px;
+    color: red;
+}

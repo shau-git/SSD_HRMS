@@ -1,12 +1,17 @@
 const express = require('express');
 const sequelize = require('./db/dbConnect');
-// const userRoutes = require('./routes/users');
 require('dotenv').config(); 
 const PORT = process.env.PORT || 3012; 
+const cors = require("cors")
+const path = require("path");
 
 const app = express();
+app.use(express.urlencoded({extended: true}))
+// app.use(express.static(path.join(__dirname, "public")))
+app.use(express.static("./public"))
 app.use(express.json());
-// app.use('/users', userRoutes);
+app.use(cors())
+
 
 // middleware
 // authentication
@@ -20,11 +25,13 @@ const is_new = require("./Middlewares/auth/is_new")
 const authRouter = require("./routers/authRouter")
 const employeesRouter = require("./routers/employeeRouter")
 const attendanceRouter = require("./routers/attendanceRouter")
+const leaveRouter = require("./routers/leaveRouter")
 
 // routes
 app.use('/api/auth',authRouter)
 app.use('/api/employee', authenticateUser, employeesRouter)
-app.use('/api/attendance', authenticateUser, is_new, attendanceRouter) //, is_new,
+app.use('/api/attendance', authenticateUser, is_new, attendanceRouter) 
+app.use('/api/leave', authenticateUser, is_new, leaveRouter) 
 
 // handling error
 app.use(errorHandlerMiddleware)

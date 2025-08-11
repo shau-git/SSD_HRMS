@@ -1,9 +1,9 @@
-const {StatusCodes} = require("http-status-codes")
+const { StatusCodes } = require("http-status-codes")
 const Employee = require("../models/employee")
-const {NotFoundError, BadRequestError,  ForbiddenError} = require("../errors/errors")
-const {parseReqQuery} = require("./utils/controllerUtils")
+const { NotFoundError, BadRequestError,  ForbiddenError } = require("../errors/errors")
+const { parseReqQuery } = require("./utils/controllerUtils")
 const asyncWrapper = require("./utils/async")
-const { getDataWithSGT}= require("./utils/convertToSGT")
+const { getDataWithSGT }= require("./utils/convertToSGT")
 
 // GET ALL employee
 const getAllEmployees = async(req,res) => {
@@ -89,7 +89,7 @@ const updateEmployee = async(req, res) => {
     // getting payload from the token
     const payload = req.employee
 
-    // to store the employee data after updating
+    // to store the employee data after updating (for admin use only)
     let updatedEmployee;
     console.log(payload.employee_id, employee_id)
 
@@ -103,7 +103,7 @@ const updateEmployee = async(req, res) => {
     // if admin visit here
     if (payload.role === "A" ) { 
 
-        // hash the password if request for changing
+        // hash the password if request for changing, will return back the same obj with the password hashed
         toUpdateEmployee = await Employee.hashPassword(toUpdateEmployee)
 
         // update the employee data

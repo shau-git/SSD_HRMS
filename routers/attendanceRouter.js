@@ -4,14 +4,15 @@ const { validateAttendanceId } = require("../Middlewares/validation/utils/valida
 const { 
         clockIn, 
         clockOut, 
-        getAllAttedance,
+        getAllAttendance,
         getEditAttendanceRequest, 
         editAttendance_W,
         deleteEditAttendance_W,
-        response_edit_request_E_A,
+        responseEditAttendanceRequest_E_A,
         markAsRead,
-        responseReqStatus,
-        recreateAttendance
+        updateAttendanceRecord,
+        recreateAttendance,
+        deleteAttendance
          } = require("../Controllers/attendanceController")
     
 const {
@@ -20,12 +21,13 @@ const {
         validateEditAttendance_W,
         validateMarkRead,
         validateEditAttendance_E_A,
-        validateEditAttendanceResponse } = require("../Middlewares/validation/attendanceJoi1")
+        validateEditAttendanceResponse,
+        validateQueryMiddleware } = require("../Middlewares/validation/attendanceJoi")
 
 
 router.route('/')
-    .get(getAllAttedance) // get attendance
-    .post( validateEditAttendance_W, recreateAttendance) // to recreate attendance for those forgot to clock in /out
+    .get( validateQueryMiddleware, getAllAttendance ) // get attendance
+    .post( validateEditAttendance_W, recreateAttendance ) // to recreate attendance for those forgot to clock in /out
 
 
 // for clock in /out
@@ -33,25 +35,32 @@ router.route('/markAttendance')
     .post( validateClockInAttendance, clockIn ) // admin, employer, worker
     .put( validateClockOutAttendance, clockOut) // admin, employer, worker
 
+
+// for admin to destroy the attendance
+router.route('/deleteAttendance/:attendance_id')
+    .delete( validateAttendanceId, deleteAttendance) // admin
+
+
 // employer response ot_req_status or edit_status, admin can change the manager_id in the attendance table from here also & only
 router.route('/responseReq/:attendance_id')
-    .all( validateAttendanceId )
-    .put( validateEditAttendanceResponse, responseReqStatus)  // admin, employer
+    .put( validateAttendanceId, validateEditAttendanceResponse, updateAttendanceRecord)  // admin, employer
+
+
+// mark as read
+router.route('/markRead/:attendance_id')
+    .put( validateAttendanceId, validateMarkRead, markAsRead )  // worker
+
 
 // get edit attendance request
 router.route('/editAttendanceReq/').get(getEditAttendanceRequest)  // admin, employer, worker
 
-// mark as read
-router.route('/markRead/:attendance_id')
-    .all( validateAttendanceId )
-    .put( validateMarkRead, markAsRead )  // worker
 
 // for submitting request of editing attendance
 router.route('/editAttendanceReq/:attendance_id')
     .all( validateAttendanceId )
     .post( validateEditAttendance_W, editAttendance_W ) // Worker
-    // PUT employer response to the edit attendance req in edit_attendance_request table, admin can change the manager_id in the attendance_edit_request table from here also & only
-    .put( validateEditAttendance_E_A, response_edit_request_E_A ) // admin, employer 
+    // PUT employer response to the edit attendance req in edit_attendance_request table, admin can change the manager_id in the attendance_edit_request table from here also
+    .put( validateEditAttendance_E_A, responseEditAttendanceRequest_E_A ) // admin, employer 
     .delete( deleteEditAttendance_W )
 
 module.exports = router

@@ -12,7 +12,7 @@ const is_new = async(req, res, next) => {
     if(!employee) {
         throw new NotFoundError(`Employee ID not Found`)
     }
-    console.log(employee)
+    //console.log(employee)
 
     const response = {
         employee_id: employee.employee_id, 

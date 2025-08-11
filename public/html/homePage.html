@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="../style/style.css" />
+    <style>
+
+        .clock-in-btn {
+            background-color: rgb(31, 202, 31);
+            border: none;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+        .clock-out-btn {
+            background-color: rgb(173, 29, 18);
+            border: none;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+        .clock-in-btn:hover{
+            background-color: rgb(31, 202, 31, 0.8);
+            cursor: pointer;
+        }
+
+        .clock-out-btn:hover {
+            background-color: rgb(146, 27, 19, 0.8);
+            cursor: pointer;
+        }
+        .clock-in-btn:active {
+            background-color: rgb(31, 202, 31, 0.4);
+            cursor: pointer;
+        }
+        .clock-out-btn:active {
+            background-color: rgb(146, 27, 19, 0.4);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-link">
+            <img src="../images/home.svg">
+            <!--div class="description">Home</!--div-->
+        </div>
+
+        <div class="sidebar-link">
+            <img src="../images/attendance.svg">
+            <!--div class="description">Attendance</!--div-->
+        </div>
+
+        <div class="sidebar-link">
+            <img src="../images/leave.svg">
+            <!--div class="description">Leave</!--div-->
+        </div>
+
+        <div class="sidebar-link ">
+            <div class="notification-container">
+                <img src="../images/notification.svg">
+                <div class="notifications-count">3</div>
+            </div>
+            <!--div-- class="description">Notifications</!--div-->
+        </div>
+
+        <div class="sidebar-link">
+            <img src="../images/info.svg">
+            <!--div class="description">Log Out</!--div-->
+        </div>
+
+        <div class="sidebar-link">
+            <img src="../images/logout.svg">
+            <!--div class="description">Log Out</!--div-->
+        </div>
+
+    </div>
+
+
+    
+    <h2>Current Date Time:</h2>
+    <p id="date"></p>
+    <p id="time"></p>
+
+    <button class="clock-in-btn">clock in</button>
+    <button class="clock-out-btn">clock out</button>
+
+
+    <script src="../scripts/convertSGT.js"></script>
+    <script>
+        function updateTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const date = now.
+        document.getElementById('date').textContent = `${date}`;
+        document.getElementById('time').textContent = `${hours}:${minutes}`;
+
+        }
+
+        // Run once immediately
+        updateTime();
+        // Then update every 60 seconds
+        setInterval(updateTime, 60 * 1000);
+    </script>
+</body>
+</html>

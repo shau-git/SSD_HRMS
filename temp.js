@@ -135,4 +135,30 @@ console.log(data1)
 
 const {convertToSGT} = require("./Controllers/utils/convertToSGT")
 console.log(convertToSGT(new Date("2025-08-06T08:00")))
-console.log(convertToSGT(new Date("2025-08-06T17:00")))
+console.log(convertToSGT(new Date("2025-08-06T17:00")).getDay())
+
+console.log(new Date("2002-08-06T17:00").getFullYear())
+console.log(convertToSGT(new Date()).getMonth(), '\n')
+console.log(convertToSGT(new Date("2025-01-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-02-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-03-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-04-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-05-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-06-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-07-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-08-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-09-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-10-06T17:00")).getMonth())
+console.log(convertToSGT(new Date("2025-11-06T17:00")).getDate())
+console.log(convertToSGT(new Date("2025-12-06")).toDateString())
+
+console.log("\n")
+const today = new Date()
+today.setFullYear('2024', 0, 1)
+
+today.setHours(0, 0, 0, 0)
+console.log(today)
+console.log(convertToSGT(today))
+
+console.log(today.toISOString().slice(0,10))
+

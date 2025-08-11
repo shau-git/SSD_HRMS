@@ -71,6 +71,18 @@ const AttendanceEditRequest = sequelize.define('attendance_edit_request', {
             }
         }
     },
+    day: {
+        type: DataTypes.CHAR(3),
+        allowNull: false,   
+        validate: {
+            notNull: notNull("Day"),
+            // notEmpty: notEmpty("Day"),
+            isIn: {
+                args: [['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']],  // Note the array of arrays
+                msg: "Day must be one of: 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' "
+            },
+        }  
+    }, 
     is_ot: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

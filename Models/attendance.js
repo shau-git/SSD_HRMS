@@ -1,6 +1,6 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../db/dbConnect")
-const {notNull, len, isNumber, minNum} = require("./utils/validationUtils")
+const {notNull, len, isNumber, minNum, notEmpty} = require("./utils/validationUtils")
 const {BadRequestError} = require("../errors/errors")
 
 const Attendance = sequelize.define('attendance', {
@@ -41,14 +41,6 @@ const Attendance = sequelize.define('attendance', {
             min: minNum(0, "Leave ID")
         }
     },
-    is_amended: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-        validate: {
-            notNull: notNull("is_amended")
-        }
-    },
     start_date_time: {
         type: DataTypes.DATE,
         allowNull: true,
@@ -66,21 +58,32 @@ const Attendance = sequelize.define('attendance', {
             }
         }
     },
-    edit_date_time: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: null
-    },
-    response_date_time: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: null,
+    day: {
+        type: DataTypes.CHAR(3),
+        allowNull: false,   
         validate: {
-            isAfterSubmit(value) {  // response_date_time has to > edit_date_time
-                if (value && value <= this.edit_date_time) {
-                    throw new BadRequestError('Response time must be after submission time');
-                }
-            }
+            notNull: notNull("Day"),
+            // notEmpty: notEmpty("Day"),
+            isIn: {
+                args: [['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']],  // Note the array of arrays
+                msg: "Day must be one of: 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' "
+            },
+        }  
+    }, 
+    total_min_work: {
+        type: DataTypes.SMALLINT,
+        defaultValue: 0,
+        validate: {
+            min: minNum(0, "total_min_work"),
+            isInt: isNumber("total_min_work")
+        }
+    },
+    total_min_adjusted: {
+        type: DataTypes.SMALLINT,
+        defaultValue: 0,
+        validate: {
+            min: minNum(0, "total_min_adjusted"),
+            isInt: isNumber("total_min_adjusted")
         }
     },
     // withdraw_date_time: {
@@ -103,30 +106,7 @@ const Attendance = sequelize.define('attendance', {
             notNull: notNull("is_ot")
         }
     },
-    total_min_work: {
-        type: DataTypes.SMALLINT,
-        defaultValue: 0,
-        validate: {
-            min: minNum(0, "total_min_work"),
-            // max: {
-            //     args: [1440],
-            //     msg: "total_min_work cannot be greater than 1440."
-            // },
-            isInt: isNumber("total_min_work")
-        }
-    },
-    total_min_adjusted: {
-        type: DataTypes.SMALLINT,
-        defaultValue: 0,
-        validate: {
-            min: minNum(0, "total_min_adjusted"),
-            // max: {
-            //     args: [1440],
-            //     msg: "total_min_work cannot be greater than 1440."
-            // },
-            isInt: isNumber("total_min_adjusted")
-        }
-    },
+
     hours_of_ot: {
         type: DataTypes.SMALLINT,
         defaultValue: 0,
@@ -137,6 +117,32 @@ const Attendance = sequelize.define('attendance', {
             //     msg: "total_min_work cannot be greater than 1440."
             // },
             isInt: isNumber("hours_of_ot")
+        }
+    },
+    remarks: {
+        type: DataTypes.STRING(40),
+        allowNull: true,
+        defaultValue: null,
+        validate: {
+            len: len(1,40,"Remarks"),
+            notEmpty: notEmpty("Leave remarks"),
+        }
+    },
+    leave_remarks: {
+        type: DataTypes.STRING(40),
+        allowNull: true,
+        default: null,
+        validate: {
+            notEmpty: notEmpty("Leave remarks"),
+            len: len(1,40,"Leave remarks")
+        }
+    },
+    is_amended: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        validate: {
+            notNull: notNull("is_amended")
         }
     },
     edit_status: {
@@ -161,12 +167,21 @@ const Attendance = sequelize.define('attendance', {
             }
         }
     },
-    remarks: {
-        type: DataTypes.STRING(40),
+    edit_date_time: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null
+    },
+    response_date_time: {
+        type: DataTypes.DATE,
         allowNull: true,
         defaultValue: null,
         validate: {
-            len: len(1,40,"Remarks")
+            isAfterSubmit(value) {  // response_date_time has to > edit_date_time
+                if (value && value < this.edit_date_time) {
+                    throw new BadRequestError('Response time must be after submission time');
+                }
+            }
         }
     },
     read: {

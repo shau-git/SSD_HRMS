@@ -1,6 +1,6 @@
 const {DataTypes} = require("sequelize")
 const sequelize = require("../db/dbConnect")
-const {notEmpty, notNull, len, isNumber, minNum} = require("../Middlewares/validation/validationAdHoc")
+const {notNull, len, isNumber, minNum, notEmpty} = require("./utils/validationUtils")
 
 const Leave = sequelize.define('leave', {
     leave_id: {
@@ -29,49 +29,17 @@ const Leave = sequelize.define('leave', {
     },
     attendance_id: {
         type: DataTypes.SMALLINT,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null,
         references: {
             model: "attendance",
             key: "attendance_id",
         },
         validate: {
-            notNull: notNull("Attendance ID"),
+            //notNull: notNull("Attendance ID"),
             isInt: isNumber("Attendance ID"),
             min: minNum(0, "Attendance ID")
         }
-    },
-    status: {
-        type: DataTypes.STRING(8),
-        allowNull: false,
-        set(value) {
-            if (typeof value === 'string') {
-                this.setDataValue('status', value.trim().toUpperCase());
-            }
-        },        
-        validate: {
-            notNull: notNull("Status"),
-            isIn: {
-                args: [['PENDING', 'APPROVED', 'REJECTED']],  // Note the array of arrays
-                msg: "Status must be one of: 'PENDING', 'APPROVED', or 'REJECTED'"
-            }
-        }
-    },
-    type: {
-        type: DataTypes.CHAR(2),
-        allowNull: false,      
-        set(value) {
-            if (typeof value === 'string') {
-                this.setDataValue('type', value.trim().toUpperCase());
-            }
-        },  
-        validate: {
-            notNull: notNull("Type"),
-            notEmpty: notEmpty("Type"),
-            isIn: {
-                args: [['AL', 'ML']],  // Note the array of arrays
-                msg: "Leave type must be one of: 'AL' (for Annual Leave) or 'ML' (for Medical Leave)"
-            },
-        }  
     },
     start_date_time: {
         type: DataTypes.DATE, 
@@ -92,6 +60,72 @@ const Leave = sequelize.define('leave', {
             }
         }
     },
+    day: {
+        type: DataTypes.CHAR(3),
+        allowNull: false,   
+        validate: {
+            notNull: notNull("Day"),
+            notEmpty: notEmpty("Day"),
+            isIn: {
+                args: [['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']],  // Note the array of arrays
+                msg: "Day must be one of: 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' "
+            },
+        }  
+    }, 
+    duration: {
+        type: DataTypes.CHAR(4),
+        allowNull: false,   
+        validate: {
+            notNull: notNull("Duration"),
+            notEmpty: notEmpty("Duration"),
+            isIn: {
+                args: [['FULL', 'AM', 'PM']],  // Note the array of arrays
+                msg: "Day must be one of: 'FULL', 'AM', 'PM' "
+            },
+        }  
+    }, 
+    type: {
+        type: DataTypes.CHAR(2),
+        allowNull: false,      
+        set(value) {
+            if (typeof value === 'string') {
+                this.setDataValue('type', value.trim().toUpperCase());
+            }
+        },  
+        validate: {
+            notNull: notNull("Type"),
+            notEmpty: notEmpty("Type"),
+            isIn: {
+                args: [['AL', 'ML']],  // Note the array of arrays
+                msg: "Leave type must be one of: 'AL' (for Annual Leave) or 'ML' (for Medical Leave)"
+            },
+        }  
+    },
+    leave_remarks: {
+        type: DataTypes.STRING(40),
+        allowNull: false,
+        validate: {
+            notNull: notNull("Leave remarks"),
+            notEmpty: notEmpty("Leave remarks"),
+            len: len(1,40,"Leave remarks")
+        }
+    },
+    status: {
+        type: DataTypes.STRING(9),
+        allowNull: false,
+        set(value) {
+            if (typeof value === 'string') {
+                this.setDataValue('status', value.trim().toUpperCase());
+            }
+        },        
+        validate: {
+            notNull: notNull("Status"),
+            isIn: {
+                args: [['PENDING', 'APPROVED', 'REJECTED', 'WITHDRAWN']],  // Note the array of arrays
+                msg: "Status must be one of: 'PENDING', 'APPROVED', 'REJECTED' OR 'WITHDRAWN'"
+            }
+        }
+    },
     submit_date_time: {
         type: DataTypes.DATE, 
         allowNull: false,
@@ -100,7 +134,7 @@ const Leave = sequelize.define('leave', {
             notNull: notNull("Submit date/time"),
         },
     },
-    response_time: {
+    response_date_time: {
         type: DataTypes.DATE, 
         allowNull: true,
         validate: {
@@ -111,7 +145,7 @@ const Leave = sequelize.define('leave', {
             }
         }
     },
-    withdraw_time: {
+    withdraw_date_time: {  
         type: DataTypes.DATE, 
         allowNull: true,
         validate: {
@@ -121,6 +155,16 @@ const Leave = sequelize.define('leave', {
                 }
             }
         }
+    },
+    read: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: null,      
+    },
+    read_withdraw: {  // to notify employer that the worker has withdrawn a leave
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: null,      
     },
     manager_id: {
         type: DataTypes.SMALLINT,
@@ -134,19 +178,10 @@ const Leave = sequelize.define('leave', {
             isInt: isNumber("Attendance ID"),
             min: minNum(0, "Attendance ID")
         }
-    },
-    remarks: {
-        type: DataTypes.STRING(40),
-        allowNull: false,
-        defaultValue: null,
-        validate: {
-            notNull: notNull("Remarks"),
-            notEmpty: notEmpty("Remarks"),
-            len: len(1,40,"Remarks")
-        }
     }
 },{
     timestamps: false,
+    tableName: 'leave'
 })
 
 

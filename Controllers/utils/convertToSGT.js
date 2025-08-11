@@ -16,7 +16,7 @@ function getDataWithSGT(sequelizeQueries) {
     if(Array.isArray(sequelizeQueries)) {
         formattedSGT = sequelizeQueries.map(query => {
             const toInsert = query.dataValues
-            console.log(toInsert)
+            // console.log(toInsert)
             return {...toInsert}
         }) 
     } else {
@@ -48,6 +48,7 @@ function convertToSGT(date) {
 
     return localISOTime// Still ends with "Z" (UTC)
 }
+
 
 // get current time in SGT
 function getCurrentTimeSGT() {

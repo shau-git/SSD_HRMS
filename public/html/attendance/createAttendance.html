@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="../../style/style.css" />
+    <link rel="stylesheet" href="../../style/attendance/attendance.css"/>
+    <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
+    <link rel="stylesheet" href="../../style/attendance/attendanceDetail.css">
+    <link rel="stylesheet" href="../../style/attendance/editAttendance.css">
+</head>
+<body>
+
+    <script src="../../scripts/checkLogin.js"></script>
+
+    <script src="../../scripts/urlBase.js"></script>
+
+    <div class="sidebar">
+
+        <a href="../homePage.html">
+            <div class="sidebar-link">
+                <img src="../../images/home.svg">
+            </div>
+        </a>
+
+        <a href="./attendance.html">
+            <div class="sidebar-link">
+                    <img src="../../images/attendance.svg">               
+            </div>
+        </a>
+
+        <a href="../leave/leave.html">
+            <div class="sidebar-link">
+                <img src="../../images/leave.svg">
+            </div>
+        </a>
+
+
+        <a href="../notification/notification.html">
+            <div class="sidebar-link ">
+                <div class="notification-container">
+                    <img src="../../images/notification.svg">
+                    <div class="notifications-count">3</div>
+                </div>
+            </div>
+        </a>
+
+
+        <a href="../employee/employee.html">
+            <div class="sidebar-link">
+                <img src="../../images/info.svg">
+            </div>
+        </a>
+
+
+        <a href="../logoutPage.html">
+            <div class="sidebar-link">
+                <img src="../../images/logout.svg">
+            </div>
+        </a>
+ 
+    </div>
+
+    <h1>Add new Attendance Request</h1>
+    <button style="margin-bottom: 15px;"><a href="./attendanceHist.html">Back to Attendance List</a></button>
+
+    <form id="editAttendanceForm">
+      <input type="hidden" id="attendance_id" />
+
+        <div>
+            <label for="start_date_time">start_date_time:</label>
+            <input type="text" id="start_date_time" name="start_date_time" placeholder="YYYY-MM-DDTHH:MM" required />
+        </div>
+
+        <div>
+            <label for="end_date_time">end_date_time:</label>
+            <input type="text" id="end_date_time" name="end_date_time" placeholder="YYYY-MM-DDTHH:MM" required />
+        </div>
+
+        <div>
+            <label for="remarks">remarks:</label>
+            <input type="text" id="remarks" name="remarks" required />
+        </div>
+
+        <div>
+            <label for="is_ot">is_ot:</label>
+            <input type="checkbox" id="is_ot" name="is_ot" />
+        </div>
+
+        <div id="hours_ot_container" style="display:none;">
+            <label for="hours_of_ot">hours_of_ot:</label>
+            <input type="number" id="hours_of_ot" name="hours_of_ot" min="0" max="12" required/>
+        </div>
+
+
+      <button class="submit" type="submit">Submit Request</button>
+
+
+      <div id="message"></div>
+      
+      <script src="../../scripts/attendance/createAttendance.js"></script>
+
+    </form>
+
+
+
+</body>
+</html>

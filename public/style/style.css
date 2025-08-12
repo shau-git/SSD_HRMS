@@ -1,6 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     padding-left: 80px;
+    padding-top: 10px;
 }
 
 .sidebar {
@@ -35,4 +36,59 @@ body {
     font-size: 12px;
     padding: 2px 6px; 
     border-radius: 10px;;
+}
+a {
+    color: black;
+    text-decoration: none;
+}
+
+.delete-btn,
+.reject-btn {
+    background-color: rgb(202, 36, 36);
+}
+
+.delete-btn:hover,
+.reject-btn:hover {
+    background-color: rgb(202, 36, 36, 0.7);
+}
+
+
+.delete-btn,
+.cancel-btn,
+.reject-btn,
+.approve-btn,
+.edit-btn {
+    border: none;
+    padding: 6px;
+    border-radius: 3px;
+}
+
+.approve-btn {
+    background-color: rgb(82, 223, 16);
+}
+
+.yes-btn {
+    background-color: rgb(82, 223, 16);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 3px;
+}
+
+.cancel-btn,
+.edit-btn {
+    background-color: rgb(177, 176, 176);
+}
+
+.yes-btn:hover,
+.approve-btn:hover {
+    background-color: rgb(82, 223, 16, 0.7);
+}
+
+.cancel-btn:hover,
+.edit-btn:hover {
+    background-color: rgba(177, 176, 176, 0.7);
+
+}
+.delete-container {
+    margin-top: 5px;
 }

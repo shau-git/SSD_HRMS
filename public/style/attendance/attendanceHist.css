@@ -1,0 +1,41 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+}
+
+#attendanceList {
+    margin-top: 20px;
+}
+
+.attendance-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: rgb(245, 243, 243);
+}
+
+.attendance-item h3 {
+    margin-top: 0;
+}
+
+.attendance-item button {
+    margin-right: 5px;
+}
+
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+#attendance-parent-div {
+    background-color: rgb(245, 243, 243);
+}
+
+.filter-container {
+    margin-top: 10px;
+}
+
+.filter-container input {
+    margin-right: 3px;
+}

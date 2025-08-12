@@ -13,7 +13,7 @@ const getAllLeaveHist = asyncWrapper(async(req, res) => {
     const payload = req.employee
     
         //?year=2025&month=8
-        let {year, month, day, manager, status, read, type} = req.query
+        let {year, month, day, manager, status, read, type, leave_id} = req.query
     
         // variable to store all the things for filtering the query
         let filter = {};
@@ -60,12 +60,19 @@ const getAllLeaveHist = asyncWrapper(async(req, res) => {
             filter.type = type
         }
 
+        if (leave_id) {
+            filter.type = leave_id
+        }
         console.log(filter )
 
     const leaveHistory = await Leave.findAll({
         where: filter,
         order: [['start_date_time', 'DESC'], ['leave_id', 'DESC']]
     })
+
+    if (leaveHistory.length < 1) {
+        throw new NotFoundError(`Leave not found!`)
+    }
 
     // format all the datetime field to sgt
     const leaveHistoryWithSGT = getDataWithSGT(leaveHistory)

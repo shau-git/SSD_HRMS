@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atendance Page</title>
+    <title>Leave Page</title>
     <link rel="stylesheet" href="../../style/style.css" />
-    <link rel="stylesheet" href="../../style/attendance/attendance.css"/>
+    <link rel="stylesheet" href="../../style/attendance/attendance.css">
 </head>
 <body>
     <script src="../../scripts/checkLogin.js"></script>
     <script src="../../scripts/urlBase.js"></script>
-    
+
     <div class="sidebar">
         <a href="../homePage.html">
             <div class="sidebar-link">
@@ -18,13 +18,13 @@
             </div>
         </a>
 
-        <a href="./attendance.html">
+        <a href="../attendance/attendance.html">
             <div class="sidebar-link">
-                    <img src="../../images/attendance.svg">              
+                    <img src="../../images/attendance.svg">               
             </div>
         </a>
 
-        <a href="../leave/leave.html">
+        <a href="./leave.html">
             <div class="sidebar-link">
                 <img src="../../images/leave.svg">
             </div>
@@ -55,32 +55,21 @@
         </a>
  
     </div>
+    
 
+    <div class="leave-container leave-hist">
+        Leave Records
+    </div>
 
-    <div class="attendance-container attendance-hist">
-        Attendance Records
+    <div class="leave-container leave-req" style="display: none;">
+        Leave Request
+    </div>
+
+    <div class="leave-container admin-employer" style="display: none;">
+        Admin or Employer Leave Records
     </div>
 
 
-    <div class="attendance-container attendance-edit-req">
-        Attendance Edit Request
-    </div>
-
-    <div class="attendance-container new-attendance-req" style="display: none;">
-        New Attendance Request
-    </div>
-
-    <div class="attendance-container ot-req" style="display: none;">
-        OT Request
-    </div>
-
-    <div class="attendance-container admin-employer" style="display: none;">
-        Admin or Employer Attendance Records
-    </div>
-
-
-
-
-    <script src="../../scripts/attendance/attendance.js"></script>
+    <script src="../../scripts/leave/leave.js"></script>
 </body>
 </html>

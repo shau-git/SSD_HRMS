@@ -38,50 +38,69 @@
             background-color: rgb(146, 27, 19, 0.4);
             cursor: pointer;
         }
+        #date,
+        #time {
+            font-size: 18px;
+        }
+
     </style>
 </head>
 <body>
+    <script src="../scripts/checkLogin.js"></script>
+    <script src="../../scripts/urlBase.js"></script>
+
     <div class="sidebar">
-        <div class="sidebar-link">
-            <img src="../images/home.svg">
-            <!--div class="description">Home</!--div-->
-        </div>
-
-        <div class="sidebar-link">
-            <img src="../images/attendance.svg">
-            <!--div class="description">Attendance</!--div-->
-        </div>
-
-        <div class="sidebar-link">
-            <img src="../images/leave.svg">
-            <!--div class="description">Leave</!--div-->
-        </div>
-
-        <div class="sidebar-link ">
-            <div class="notification-container">
-                <img src="../images/notification.svg">
-                <div class="notifications-count">3</div>
+        <a href="homePage.html">
+            <div class="sidebar-link">
+                <img src="../../images/home.svg">
             </div>
-            <!--div-- class="description">Notifications</!--div-->
-        </div>
+        </a>
 
-        <div class="sidebar-link">
-            <img src="../images/info.svg">
-            <!--div class="description">Log Out</!--div-->
-        </div>
+        <a href="./attendance/attendance.html">
+            <div class="sidebar-link">
+                    <img src="../../images/attendance.svg">               
+            </div>
+        </a>
 
-        <div class="sidebar-link">
-            <img src="../images/logout.svg">
-            <!--div class="description">Log Out</!--div-->
-        </div>
+        <a href="./leave/leave.html">
+            <div class="sidebar-link">
+                <img src="../../images/leave.svg">
+            </div>
+        </a>
 
+
+        <a href="./notification/notification.html">
+            <div class="sidebar-link ">
+                <div class="notification-container">
+                    <img src="../../images/notification.svg">
+                    <div class="notifications-count">3</div>
+                </div>
+            </div>
+        </a>
+
+
+        <a href="./employee/employee.html">
+            <div class="sidebar-link">
+                <img src="../../images/info.svg">
+            </div>
+        </a>
+
+
+        <a href="./logoutPage.html">
+            <div class="sidebar-link">
+                <img src="../../images/logout.svg">
+            </div>
+        </a>
+ 
     </div>
 
-
-    
     <h2>Current Date Time:</h2>
-    <p id="date"></p>
-    <p id="time"></p>
+
+    <div class="datetime-container">
+        <p id="date"></p>
+        <p id="time"></p>
+    </div>
+
 
     <button class="clock-in-btn">clock in</button>
     <button class="clock-out-btn">clock out</button>
@@ -90,12 +109,28 @@
     <script src="../scripts/convertSGT.js"></script>
     <script>
         function updateTime() {
+
         const now = new Date();
+
+        // Array of day names (0 = Sunday, 1 = Monday, etc.)
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        // Format date as YYYY-MM-DD
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
+        const day = now.getDate().toString().padStart(2, '0');
+        const dayName = days[now.getDay()]; // Get the day name
+
+
+
         const hours = now.getHours().toString().padStart(2, '0');
         const minutes = now.getMinutes().toString().padStart(2, '0');
-        const date = now.
-        document.getElementById('date').textContent = `${date}`;
-        document.getElementById('time').textContent = `${hours}:${minutes}`;
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+
+
+        document.getElementById('date').textContent = `${year}-${month}-${day} (${dayName})`;
+        document.getElementById('time').textContent = `${hours}:${minutes} ${ampm}`;
 
         }
 

@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atendance Page</title>
+    <title>Home Page</title>
     <link rel="stylesheet" href="../../style/style.css" />
     <link rel="stylesheet" href="../../style/attendance/attendance.css"/>
+    <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
+    <style>
+ 
+
+
+    </style>
 </head>
 <body>
     <script src="../../scripts/checkLogin.js"></script>
@@ -20,7 +26,7 @@
 
         <a href="./attendance.html">
             <div class="sidebar-link">
-                    <img src="../../images/attendance.svg">              
+                    <img src="../../images/attendance.svg">                
             </div>
         </a>
 
@@ -57,30 +63,33 @@
     </div>
 
 
-    <div class="attendance-container attendance-hist">
-        Attendance Records
+    <h1>All Attendance for Admin or Employer</h1>
+    <button style="margin-bottom: 10px;">
+        <a href="./createAttendance.html">Add New Attendance</a>
+    </button>
+    <br>
+
+    <button id="fetchAttendanceBtn">Refresh Attendance List</button><br>
+
+    <div class="filter-container">
+        <label for="'year">Year: </label>
+        <input id="year" type="number" min="2000" placeholder="YYYY">
+
+        <label for="month">Month: </label>
+        <input id="month" type="number" min="1" max="12" placeholder="MM">
+
+        <label for="day">Day: </label>
+        <input id="day" type="number" min="1" max="31" placeholder="DD">
+
+        <label for="attendance_id">Attendance ID: </label>
+        <input id="attendance-id" type="number" min="1" placeholder="Attendance ID">
     </div>
 
+    <div id="message"></div>
+    <div id="attendanceList">Loading attendance list...</div>
 
-    <div class="attendance-container attendance-edit-req">
-        Attendance Edit Request
-    </div>
+   
 
-    <div class="attendance-container new-attendance-req" style="display: none;">
-        New Attendance Request
-    </div>
-
-    <div class="attendance-container ot-req" style="display: none;">
-        OT Request
-    </div>
-
-    <div class="attendance-container admin-employer" style="display: none;">
-        Admin or Employer Attendance Records
-    </div>
-
-
-
-
-    <script src="../../scripts/attendance/attendance.js"></script>
+    <script src="../../scripts/attendance/adminEmployerAttendance.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@ async function loginUser(event)
 {
     //Prevent event bubbling if called from a form submit event
     if (event) event.preventDefault(); 
-    const apiBaseUrl = "http://localhost:3013";
+    //const apiBaseUrl = "http://localhost:3013";
     const messageDiv = document.getElementById("errMsg");
     //messageDiv.textContent = ""; // Clear previous messages
     const loginForm = document.getElementById("loginForm");
@@ -13,7 +13,7 @@ async function loginUser(event)
         email: email.value,
         hashed_password: password.value,
     };
-    console.log(loginData);
+    // console.log(loginData);
 
         try {
         // Make a POST request to your API endpoint
@@ -25,9 +25,6 @@ async function loginUser(event)
             body: JSON.stringify(loginData), // Send the data as a JSON string in the request body
         });
 
-        // const data  = await response.json()
-        // console.log(data)
-        // console.log(data.status)
         // Check for API response status (e.g., 201 Created, 400 Bad Request, 500 Internal Server Error)
         const responseBody = response.headers
         .get("content-type")
@@ -43,10 +40,15 @@ async function loginUser(event)
             if (responseBody.token) {
                 localStorage.setItem("token", responseBody.token);
             }
+            if (responseBody.employee) {
+                console.log(responseBody.employee.role, 'empl')
+                localStorage.setItem("role", responseBody.employee.role);
+            }
             loginForm.reset(); // Clear the form after success
-            window.location.href = "/html/homePage.html"; // Redirect user to books page.
-        } else if (response.status === 401) {
-            // Handle validation errors from the API (from Practical 04 validation middleware)
+            window.location.href = "/html/homePage.html"; // Redirect user to attendnace page.
+        } else if (response.status === 401 && responseBody.msg === 'Please change your password') {
+            window.location.href = "/html/changePassword.html"
+        } else if (response.status === 401 || response.status === 400) {
             messageDiv.textContent = `Authentication Error: ${responseBody.error}`;
             messageDiv.style.color = "red";
             console.log("Login failed");

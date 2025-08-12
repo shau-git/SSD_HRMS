@@ -148,6 +148,11 @@ const operationRules = {
 
 
 const getAttendanceQuery = Joi.object({
+    leave_id: Joi.number().min(1)
+            .messages({
+                'number.base': 'leave_id must be a number',
+                'number.min': 'leave_id cannot be negative',
+            }),
     year: Joi.number().min(2000)
             .messages({
                 'number.base': 'Year must be a number',

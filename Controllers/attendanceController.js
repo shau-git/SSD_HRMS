@@ -16,13 +16,13 @@ console.log('today date', todayDate)
 
 
 
-// GET ALL Attendance
+// GET ALL Attendance  (manager = true in req.query means admin or employer want to get their own data)
 const getAllAttendance = asyncWrapper(async(req, res) => {
 
     const payload = req.employee
 
     //?year=2025&month=8
-    let {year, month, day, manager, ot_req_status, edit_status, read} = req.query
+    let {year, month, day, manager, ot_req_status, edit_status, read, attendance_id} = req.query
 
 
     let filter = {};
@@ -48,6 +48,12 @@ const getAllAttendance = asyncWrapper(async(req, res) => {
 
     } 
 
+    // admin want to get his on attendance data
+    if (payload.role === 'A' && Boolean(manager) === true) {
+        filter.employee_id = payload.employee_id
+    }
+
+    if(attendance_id) { filter.attendance_id = attendance_id }
     // let start = `-01T00:00:00.000Z`;
     // let end ='-31T23:59:59.999Z';
 
@@ -130,6 +136,20 @@ const getAllAttendance = asyncWrapper(async(req, res) => {
         order: [['start_date_time', 'DESC'], ['employee_id', 'ASC']]
     })
 
+    console.log('here', attendances)
+    if (attendances.length < 1) {
+        throw new NotFoundError(`Attendance not found!`)
+    } 
+
+
+    if(attendance_id && payload.role !== 'A') {
+        if(payload.employee_id !== attendances[0].dataValues.manager_id) {
+            if(payload.employee_id !== attendances[0].dataValues.employee_id) {
+                throw new ForbiddenError("This side is forbidden")
+            }
+        }
+    }
+
     // format all the datetime field to sgt
     const attendanceWithSGT = getDataWithSGT(attendances)
 
@@ -154,7 +174,7 @@ const updateAttendanceRecord = asyncWrapper(async(req, res) => {
 
     // if attendance id not found
     if (!attendance) {
-        throw new NotFoundError(`Attendance id not found`)
+        throw new NotFoundError(`Attendance not found`)
     }
 
     // if someone want to change the manager_id in the attendance, make sure is admin
@@ -196,6 +216,7 @@ const updateAttendanceRecord = asyncWrapper(async(req, res) => {
         if(ot_req_status.toUpperCase() === "APPROVED") {
 
             toUpdate.ot_req_status = "APPROVED"
+            toUpdate.total_min_adjusted = calculateTotalAdjustMin(attendance.total_min_work, true, attendance.hours_of_ot, {}).total_min_adjusted
 
         } else if (ot_req_status.toUpperCase() === "REJECTED") {
 
@@ -313,6 +334,7 @@ const clockIn = asyncWrapper(async(req, res) => {
     // get all where the date in start_date_time  is today's date or the remarks has today's date (once leave approved, attendance record will be created and the remarks will be marked as: 2025-08-01 AM AL)
     let isEmpClockIn = await Attendance.findAll({
         where: {
+            employee_id: payload.employee_id,
             [Op.or]: [
             Sequelize.where(
                 Sequelize.fn('DATE', Sequelize.col('start_date_time')),
@@ -326,20 +348,16 @@ const clockIn = asyncWrapper(async(req, res) => {
                     { [Op.ne]: 'REJECTED' },
                     { [Op.is]: null }
                 ] 
-            }
+            },
         }
     })
-    console.log('test', isEmpClockIn)
 
     isEmpClockIn = getDataWithSGT(isEmpClockIn)  
 
-//return res.send(isEmpClockIn)
 
     for (const attendance of isEmpClockIn) {
         // start_date_time can be "2025-08-06T23:07:48.181Z" or null, if employee's leave is approved will create an attendance, but start_date_time & end_date_time will be null
         const startDate = attendance.start_date_time? attendance.start_date_time.toISOString().split('T')[0] : null
-
-        console.log('startDate'. startDate)
 
         if(startDate == todayDate) {
 
@@ -482,6 +500,10 @@ const clockOut = asyncWrapper(async(req, res) => {
     // get all the data include the total adjust min, this function return an obj
     data = calculateTotalAdjustMin(total_min_work, is_ot, hours_of_ot, data)
 
+    if(is_ot === true) {
+        data.ot_req_status = 'PENDING'
+    }
+    console.log(data)
     // start executing the clock out
     const updateAttendance = await Attendance.update( 
         data,
@@ -560,9 +582,9 @@ const recreateAttendance = asyncWrapper(async(req, res) => {
 
     let {start_date_time, end_date_time, remarks, is_ot, hours_of_ot} = req.body
 
-    start_date_time = new Date(start_date_time)
+    start_date_time = convertToSGT(new Date(start_date_time))
 
-    end_date_time = new Date(end_date_time)
+    end_date_time = convertToSGT(new Date(end_date_time))
 
     console.log(start_date_time, end_date_time)
 
@@ -633,7 +655,7 @@ const editAttendance_W = asyncWrapper(async(req, res) => {
     // submit the request (INSERT INTO attendance_edit_request)
     const submitEditReq = await AttendanceEditRequest.create({
         employee_id: payload.employee_id,
-        attendance_id,
+        attendance_id: Number(attendance_id),
         start_date_time,
         end_date_time,
         day: start_date_time.toDateString().slice(0,3),
@@ -680,7 +702,7 @@ const deleteEditAttendance_W = asyncWrapper(async(req, res) => {
     console.log(deleteReq)
     if (deleteReq === 1) {
 
-        return res.status(StatusCodes.OK).json({msg: "Attendance edit request deleted."})
+        return res.status(StatusCodes.OK).json({msg: `Attendance ID ${attendance_id} has been deleted for editing request.`})
 
     } else {
 
@@ -849,13 +871,13 @@ const deleteAttendance = asyncWrapper(async(req, res) => {
         where: {attendance_id}
     })
 
-    console.log(deleteAttendance)
+    console.log('deleteA',deleteAttendance)
 
-    if (!deleteAttendance) {
+    if (deleteAttendance[0] === 0) {
         throw new NotFoundError("Attendance id  not found!")
     }
 
-    return res.status(StatusCodes.OK).json({msg: "Attendance record deleted!"})
+    return res.status(StatusCodes.OK).json({msg: `Attendance with ID ${attendance_id} deleted!`})
 
 })
 

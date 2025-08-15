@@ -4,6 +4,9 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3012; 
 const cors = require("cors")
 const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger-output.json");
+
 
 const app = express();
 app.use(express.urlencoded({extended: true}))
@@ -28,9 +31,19 @@ const attendanceRouter = require("./routers/attendanceRouter")
 const leaveRouter = require("./routers/leaveRouter")
 
 // routes
+// Serve the Swagger UI at a specific route
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument)); //http://localhost:3013/api-docs
+
+// #swagger.tags = ['Authentication']
 app.use('/api/auth',authRouter)
+
+// #swagger.tags = ['Employee']
 app.use('/api/employee', authenticateUser, employeesRouter)
+
+// #swagger.tags = ['Attendance']
 app.use('/api/attendance', authenticateUser, is_new, attendanceRouter) 
+
+// #swagger.tags = ['Leave']
 app.use('/api/leave', authenticateUser, is_new, leaveRouter) 
 
 // handling error

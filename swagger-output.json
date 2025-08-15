@@ -1,0 +1,681 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "SSD_HRMS",
+    "description": "This is a website for employee for marking their attendance",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3013",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "for admin to register a new employee",
+        "tags": ["Authentication"],
+        "description": "Only admin is allow to visit this route",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "kaneki@company.com"
+                },
+                "first_name": {
+                  "example": "kaneki"
+                },
+                "last_name": {
+                  "example": "ken"
+                },
+                "hashed_password": {
+                  "example": "12345"
+                },
+                "role": {
+                  "example": "W"
+                },
+                "medical_leave": {
+                  "example": 14
+                },
+                "annual_leave":{
+                  "example": 14
+                },
+                "manager_id": {
+                  "example": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+           "201": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "employee": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "is_active": { "type": "boolean", "example": true },
+                      "created_at": { "type": "string", "example": "2025-08-16T00:31:24.724Z" },
+                      "is_new": { "type": "boolean", "example": true },
+                      "employee_id": { "type": "integer", "example": 19 },
+                      "first_name": { "type": "string", "example": "Kaneki" },
+                      "last_name": { "type": "string", "example": "Ken" },
+                      "email": { "type": "string", "example": "kaneki@company.com" },
+                      "hashed_password": { "type": "string", "example": "$2b$10$ejEoMiIUpRUBWjWa4eZNNuyet3rKhZ8BVC4wnXbyH2Gq6XuWMwhfK" },
+                      "role": { "type": "string", "example": "W" },
+                      "medical_leave": { "type": "integer", "example": 14 },
+                      "annual_leave": { "type": "integer", "example": 14 },
+                      "manager_id": { "type": "integer", "example": 3 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {"description": "user@company.com already exist"},
+          "403": { "description": "This side is forbidden" },
+          "500": {"description": "Something went wrong, please try again."}
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "employer@company.com"
+                },
+                "hashed_password": {
+                  "example": "12345"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "employee": {
+                  "type": "object",
+                  "properties": {
+                    "employee_id": { "type": "integer", "example": 2 },
+                    "email": { "type": "string", "example": "employer@company.com" },
+                    "name": { "type": "string", "example": "Liebert, Johan" },
+                    "role": { "type": "string", "example": "E" },
+                    "is_new": { "type": "boolean", "example": false }
+                  }
+                },
+                "token": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbXBsb3llZV9pZCI6Miwicm9sZSI6IkUiLCJpc19uZXciOmZhbHNlLCJpYXQiOjE3NTUyNzY4NjcsImV4cCI6MTc1NjQ4NjQ2N30.q-BjE7wySIX3o2blYyfrpms54whkI9pN1pue_dEbmAY"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string", "example": "Invalid Credentials" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string", "example": "Password incorrect" }
+              }
+            }
+          },
+          "500": {"description": "Something went wrong, please try again."}
+        }
+      }
+    },
+    "/api/employee/": {
+      "get": {
+        "tags": ["Employee"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": { "type": "integer", "example": 2 },
+                "employees": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "employee_id": { "type": "integer", "example": 18 },
+                      "first_name": { "type": "string", "example": "Eren" },
+                      "last_name": { "type": "string", "example": "Yeager" },
+                      "email": { "type": "string", "example": "aot@company.com" },
+                      "hashed_password": { "type": "string", "example": "$2b$10$Nzmy0BrZiTrpegy7Uykfq..XxhNXR9Pe39SFcVYbA9W5bNnCbUZcK" },
+                      "is_active": { "type": "boolean", "example": true },
+                      "role": { "type": "string", "example": "W" },
+                      "medical_leave": { "type": "integer", "example": 90 },
+                      "annual_leave": { "type": "integer", "example": 90 },
+                      "created_at": { "type": "string", "example": "2025-08-15T20:26:29.561Z" },
+                      "is_new": { "type": "boolean", "example": false },
+                      "manager_id": { "type": "integer", "example": 2 }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/employee/{employee_id}": {
+      "get": {
+        "tags": ["Employee"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": { "type": "integer", "example": 1 },
+                "employee": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "employee_id": { "type": "integer", "example": 18 },
+                      "first_name": { "type": "string", "example": "Eren" },
+                      "last_name": { "type": "string", "example": "Yeager" },
+                      "email": { "type": "string", "example": "aot@company.com" },
+                      "hashed_password": { "type": "string", "example": "$2b$10$Nzmy0BrZiTrpegy7Uykfq..XxhNXR9Pe39SFcVYbA9W5bNnCbUZcK" },
+                      "is_active": { "type": "boolean", "example": true },
+                      "role": { "type": "string", "example": "W" },
+                      "medical_leave": { "type": "integer", "example": 90 },
+                      "annual_leave": { "type": "integer", "example": 90 },
+                      "created_at": { "type": "string", "example": "2025-08-15T20:26:29.561Z" },
+                      "is_new": { "type": "boolean", "example": false },
+                      "manager_id": { "type": "integer", "example": 2 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string", "example": "Employee id not found" }
+              }
+            }
+          },
+          "500": {"description": "Something went wrong, please try again."}
+        }
+      },
+      "put": {
+        "tags": ["Employee"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Employee"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/attendance/": {
+      "get": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/attendance/recent": {
+      "get": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/attendance/markAttendance": {
+      "post": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/attendance/deleteAttendance/{attendance_id}": {
+      "delete": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/attendance/responseReq/{attendance_id}": {
+      "put": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/attendance/markRead/{attendance_id}": {
+      "put": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/attendance/editAttendanceReq/": {
+      "get": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/attendance/editAttendanceReq/{attendance_id}": {
+      "post": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Attendance"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/leave/": {
+      "get": {
+        "tags": ["Leave"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": ["Leave"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/leave/markRead/{leave_id}": {
+      "put": {
+        "tags": ["Leave"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "leave_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/leave/markReadWithdraw/{leave_id}": {
+      "put": {
+        "tags": ["Leave"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "leave_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/leave/{leave_id}": {
+      "put": {
+        "tags": ["Leave"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "leave_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Leave"],
+        "description": "",
+        "parameters": [
+          {
+            "name": "leave_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  }
+}

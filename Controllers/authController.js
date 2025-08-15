@@ -41,7 +41,7 @@ const register = async(req, res) => {
 
     const responseWithSGT = getDataWithSGT(employee)
 
-    res.status(StatusCodes.CREATED).json({employee: responseWithSGT, token })
+    res.status(StatusCodes.CREATED).json({employee: responseWithSGT })
 
 }
 

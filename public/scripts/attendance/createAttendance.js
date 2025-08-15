@@ -1,6 +1,5 @@
 // Get references to the elements
 const editAttendanceForm = document.getElementById("editAttendanceForm");
-const loadingMessageDiv = document.getElementById("loadingMessage"); // Element to show loading state
 const messageDiv = document.getElementById("message"); // Element to display messages (success/error)
 const attendanceIdInput = document.getElementById("attendance_id"); 
 const editStartDateTime = document.getElementById("start_date_time"); 
@@ -25,24 +24,6 @@ function toggleHoursField() {
 }
 isOtCheckbox.addEventListener("change", toggleHoursField);
 
-// Function to populate the form fields with the fetched attendance data
-function populateForm(attendance) {
-	attendanceIdInput.value = attendance.attendance_id; // Store the attendance ID in the hidden input
-	editStartDateTime.value = attendance.start_date_time; 
-	editEndDateTime.value = attendance.end_date_time; 
-	editRemarks.value = attendance.remarks; 
-
-	// if the is_ot is checked, make the hours_of_ot appear
-	isOtCheckbox.checked = attendance.is_ot === true //|| attendance.is_ot === "true";
-	toggleHoursField()
-	editHoursOfOT.value = attendance.hours_of_ot || "";
-
-
-	loadingMessageDiv.style.display = "none"; // Hide the loading message
-	editAttendanceForm.style.display = "block"; // Show the edit form
-}
-
-
 
 
 // --- Start of code for learners to complete (Form Submission / PUT Request) ---
@@ -53,11 +34,11 @@ editAttendanceForm.addEventListener("submit", async (event) => {
 
     console.log("Edit form submitted (POST logic to be implemented)");
 
-	const attendanceData = {}
-    // TODO: Collect updated data from form fields
-	attendanceData.start_date_time = editStartDateTime.value;
-	attendanceData.end_date_time = editEndDateTime.value;
-	attendanceData.remarks = editRemarks.value;
+    const attendanceData = {
+        start_date_time: editStartDateTime.value,
+        end_date_time: editEndDateTime.value,
+        remarks: editRemarks.value,
+    };
 
 	attendanceData.is_ot = isOtCheckbox.checked === true ? true:false;
 
@@ -90,6 +71,8 @@ editAttendanceForm.addEventListener("submit", async (event) => {
 
         // TODO: Provide feedback to the user using the messageDiv (success or error messages)
         if (response.status === 201) {
+            messageDiv.innerHTML = ""
+            messageDiv.style.color = "black"
 			const a = responseBody.attendanceReq[0]
             // If attendance data was successfully fetched, populate the form
             const attendanceElement = document.createElement("div");
@@ -121,7 +104,7 @@ editAttendanceForm.addEventListener("submit", async (event) => {
 
         } else {
             const errMsg = parseError(responseBody);
-            messageDiv.textContent = `Failed to update status: ${errMsg}`;
+            messageDiv.innerHTML = `Failed to update status: ${errMsg}`;
             messageDiv.style.color = "red";
         }
   } catch (err) {

@@ -29,7 +29,7 @@ function calculateTotalAdjustMin(total_min_work, is_ot, hours_of_ot, data, onLea
     
     // check if total min of work is greater than the ot hours
     if(total_min_work < Number(hours_of_ot) * 60 ) {
-        throw new BadRequestError("Total working hours have be greater than hours of ot")
+        throw new BadRequestError("Hours of OT cannot be  be greater than Total working hours")
     }
 
     // if on leave is true means taking half day leave, if full day leave user will not clock in/out (8am to 12 am or 13am to 17am)

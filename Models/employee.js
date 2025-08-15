@@ -18,7 +18,7 @@ class Employee extends Model {
     // Instance method to create JWT (equivalent to Mongoose methods)
     createJWT() {
         return jwt.sign(
-        { employee_id: this.employee_id, role: this.role },
+        { employee_id: this.employee_id, role: this.role , is_new: this.is_new},
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_LIFETIME }
         );
@@ -177,15 +177,13 @@ Employee.init({
     sequelize,
     modelName: 'employees',
     timestamps: false,
-    defaultScope: {
-      where: {
-        is_active: true
-      }
-    },
+    // defaultScope: {
+    //   where: {
+    //     is_active: true
+    //   }
+    // },
 
-    // hooks: {
-    //     beforeSave: Employee.beforeSave
-    // }
+
 })
 
 

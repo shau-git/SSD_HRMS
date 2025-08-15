@@ -73,7 +73,8 @@ const login = async(req, res) => {
         employee_id: employee.employee_id, 
         email: employee.email, 
         name: `${employee.last_name}, ${employee.first_name}`,
-        role: employee.role
+        role: employee.role,
+        is_new: employee.is_new
     }
 
     // if the login in user is a newly ceated account, inform employee to change the password

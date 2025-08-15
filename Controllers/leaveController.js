@@ -13,7 +13,7 @@ const getAllLeaveHist = asyncWrapper(async(req, res) => {
     const payload = req.employee
     
         //?year=2025&month=8
-        let {year, month, day, manager, status, read, type, leave_id} = req.query
+        let {year, month, day, manager, status, read, type, leave_id, employee_id, read_withdraw} = req.query
     
         // variable to store all the things for filtering the query
         let filter = {};
@@ -25,7 +25,7 @@ const getAllLeaveHist = asyncWrapper(async(req, res) => {
     
         } else if (payload.role === 'E') {  //if manager/employer want to get attendance data
     
-            if(Boolean(manager) === true ) {
+            if(manager === 'true' ) {
     
                 // if in the url (/api/attendance?manager=true) query all the attendance data of that manager
                 filter.employee_id = payload.employee_id
@@ -38,7 +38,17 @@ const getAllLeaveHist = asyncWrapper(async(req, res) => {
             }
     
         } 
+
+        // admin want to get his on attendance data
+        if (payload.role === 'A' && Boolean(manager) === true) {
+            filter.employee_id = payload.employee_id
+        }
     
+        // only admin can filter out employee_id
+        if (employee_id && payload.role === 'A') {
+            filter.employee_id = employee_id
+        }
+
         if(year || month || day) {
     
             filter.start_date_time = createDateFilter({year, month, day})
@@ -56,14 +66,19 @@ const getAllLeaveHist = asyncWrapper(async(req, res) => {
             filter.read = read
         }
 
+        if(read_withdraw && (payload.role === 'A' || payload.role === 'E')) {
+            filter.read_withdraw = read_withdraw
+        }
+
         if (type && ['AL', 'ML'].includes(type.toUpperCase())) {
             filter.type = type
         }
 
         if (leave_id) {
-            filter.type = leave_id
+            filter.leave_id = leave_id
         }
         console.log(filter )
+
 
     const leaveHistory = await Leave.findAll({
         where: filter,
@@ -72,12 +87,14 @@ const getAllLeaveHist = asyncWrapper(async(req, res) => {
 
     if (leaveHistory.length < 1) {
         throw new NotFoundError(`Leave not found!`)
-    }
+    } 
 
     // format all the datetime field to sgt
     const leaveHistoryWithSGT = getDataWithSGT(leaveHistory)
-
-    res.json({total: leaveHistoryWithSGT.length, leaveHistory: leaveHistoryWithSGT})
+    console.log(leaveHistoryWithSGT)
+    return res.json({total: leaveHistoryWithSGT.length, leaveHistory: leaveHistoryWithSGT}) 
+    
+    
 })
 
 
@@ -265,13 +282,21 @@ const updateLeaveRecord = asyncWrapper(async(req,res) => {
                 manager_id: payload.employee_id
             })
 
-        } 
+
+            reqBodyUpdateLeave.attendance_id = Number(createAttendance.dataValues.attendance_id)
+
+        } else if (reqBodyUpdateLeave.status.toUpperCase() === 'REJECTED') {
+
+            await Attendance.destroy({where: {leave_id}})
+        }
 
         // append response_date_time to the obj for updating the leave
         reqBodyUpdateLeave.response_date_time = getCurrentTimeSGT()
         // set false for notification, once read will set it to true
         reqBodyUpdateLeave.read = false
+
     } 
+
 
     // update the leave data in the Leave table
     await Leave.update(
@@ -310,13 +335,15 @@ const withdrawLeave = asyncWrapper(async(req,res) => {
 
     // check if the leave_id exist
     let getLeaveData = await Leave.findOne({where: {leave_id}})
-    getLeaveData = getLeaveData.dataValues
+   
 
-    if (!getLeaveData) {
-        throw new NotFoundError(`Leave ID ${leave_id} was not requested for editing.`)
+    if (getLeaveData.dataValues.length < 1) {
+        throw new NotFoundError(`Leave Not Found.`)
     }
-    console.log(getLeaveData )
+    
 
+    getLeaveData = getLeaveData.dataValues
+    console.log(getLeaveData )
 
     if (payload.role !== 'A') {
         if(payload.employee_id !== getLeaveData.employee_id) {
@@ -328,7 +355,7 @@ const withdrawLeave = asyncWrapper(async(req,res) => {
         throw new BadRequestError(`Leave ID ${leave_id} has been withdrawn`)
     }
 
-    // update and get the leave data,
+    // update and get the withdraw date time and the status to withdraw,
     const withdrawLeave = await Leave.update(
         {withdraw_date_time: getCurrentTimeSGT(), read_withdraw: false, attendance_id: null, status: 'WITHDRAWN'}, 
         {where: {leave_id}, returning: true}

@@ -30,11 +30,11 @@ async function fetchAttendanceData(attendance_id) {
             return responseBody
 
         } else if (response.status === 404) {
-            messageDiv.innerHTML = `No OT request`;
+            messageDiv.innerHTML = `No Attendance Record`;
             messageDiv.style.color = "black";
         } else {
             const errMsg = parseError(responseBody);
-            messageDiv.textContent = `Failed to update status: ${errMsg}`;
+            messageDiv.innerHTML = `${errMsg}`;
             messageDiv.style.color = "red";
         }
 

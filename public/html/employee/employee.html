@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Info Page</title>
+    <title>Employee Page</title>
     <link rel="stylesheet" href="../../style/style.css" />
-
+    <link rel="stylesheet" href="../../style/attendance/attendanceDetail.css">
+    <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
+    <style>
+        .refresh-btn {
+            height: 40px;
+            width: 200px;
+        }
+    </style>
 </head>
 <body>
     <script src="../../scripts/checkLogin.js"></script>
@@ -35,7 +42,7 @@
             <div class="sidebar-link ">
                 <div class="notification-container">
                     <img src="../../images/notification.svg">
-                    <div class="notifications-count">3</div>
+                    <div class="notifications-count"></div>
                 </div>
             </div>
         </a>
@@ -55,6 +62,30 @@
         </a>
  
     </div>
-    
+
+    <h1>Employee Profile</h1>
+
+    <button id="register" style="display: none; margin-bottom: 10px;">
+        <a href="./createEmployee.html">Register New Employee</a>
+    </button>
+
+    <button id="fetchEmployeeBtn" class="refresh-btn">Refresh Employee </button><br>
+
+    <div id="status-container" style="display: none">   
+        <label for="active-status">Active Status: </label>
+        <select id="active-status" type="text" placeholder="Active Status">
+            <option value="">ALL</option>
+            <option value="true">True</option>
+            <option value="false">False</option>
+        </select>
+    </div>
+
+
+    <div id="message"></div>
+
+    <script src="../../scripts/notification/notification.js"></script>
+    <script src="../../scripts/employee/employee.js"></script>
+    <script src="../../scripts/employee/getAllEmployee.js"></script>
+
 </body>
 </html>

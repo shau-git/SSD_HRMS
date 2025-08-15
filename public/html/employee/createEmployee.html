@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>Register New Employee Page</title>
     <link rel="stylesheet" href="../../style/style.css" />
-    <link rel="stylesheet" href="../../style/attendance/attendance.css"/>
-    <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
     <link rel="stylesheet" href="../../style/attendance/attendanceDetail.css">
+    <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
     <link rel="stylesheet" href="../../style/attendance/editAttendance.css">
+
 </head>
 <body>
-
     <script src="../../scripts/checkLogin.js"></script>
-
     <script src="../../scripts/urlBase.js"></script>
 
     <div class="sidebar">
-
         <a href="../homePage.html">
             <div class="sidebar-link">
                 <img src="../../images/home.svg">
             </div>
         </a>
 
-        <a href="./attendance.html">
+        <a href="../attendance/attendance.html">
             <div class="sidebar-link">
                     <img src="../../images/attendance.svg">               
             </div>
@@ -47,7 +44,7 @@
         </a>
 
 
-        <a href="../employee/employee.html">
+        <a href="./employee.html">
             <div class="sidebar-link">
                 <img src="../../images/info.svg">
             </div>
@@ -62,47 +59,65 @@
  
     </div>
 
-    <h1>Add new Attendance Request</h1>
-    <button style="margin-bottom: 15px;"><a href="./attendanceHist.html">Back to Attendance List</a></button>
+    <h1>Register New Employee</h1>
+    
+    <button style="margin-bottom: 15px;"><a href="./employee.html">Back to Employee List</a></button>
 
-    <form id="editAttendanceForm">
+    <form id="createEmployeeForm">
         <div>
-            <label for="start_date_time">start_date_time:</label>
-            <input type="text" id="start_date_time" name="start_date_time" placeholder="YYYY-MM-DDTHH:MM" required />
-        </div>
-
-        <div>
-            <label for="end_date_time">end_date_time:</label>
-            <input type="text" id="end_date_time" name="end_date_time" placeholder="YYYY-MM-DDTHH:MM" required />
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name"  required />
         </div>
 
         <div>
-            <label for="remarks">remarks:</label>
-            <input type="text" id="remarks" name="remarks" required />
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name"  required />
         </div>
 
         <div>
-            <label for="is_ot">is_ot:</label>
-            <input type="checkbox" id="is_ot" name="is_ot" />
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="@company.com" style="width: 300px; height: 30px;" required />
         </div>
 
-        <div id="hours_ot_container" style="display:none;">
-            <label for="hours_of_ot">hours_of_ot:</label>
-            <input type="number" id="hours_of_ot" name="hours_of_ot" min="0" max="12"/>
+        <div>
+            <label for="hashed_password">Password:</label>
+            <input type="text" id="hashed_password" name="hashed_password" />
         </div>
 
+        <label for="role" style="display: inline-block">Role: </label>
+        <select id="role" type="text">
+            <option value="W">Worker</option>
+            <option value="E">Employer</option>
+            <option value="A">Admin</option>
+        </select>
+
+        <div style="margin-top: 11px;">
+            <label for="ML">Medical Leave:</label>
+            <input type="number" id="ML" name="ML" min="1"/>
+        </div>
+
+        
+        <div>
+            <label for="AL">Annual Leave:</label>
+            <input type="number" id="AL" name="AL" min="1"/>
+        </div>
+
+        
+        <div>
+            <label for="manager_id">Manager ID:</label>
+            <input type="number" id="manager_id" name="manager-id" min="1"/>
+        </div>
 
         <button class="submit" type="submit">Submit Request</button>
 
     </form>
 
+
     <div id="message"></div>
 
-
     <script src="../../scripts/notification/notification.js"></script>
-    <script src="../../scripts/updateManagerID.js"></script>
-    <script src="../../scripts/attendance/createAttendance.js"></script>
-
+    <script src="../../scripts/employee/employee.js"></script>
+    <script src="../../scripts/employee/createEmployee.js"></script>
 
 </body>
 </html>

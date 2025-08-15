@@ -55,9 +55,25 @@ function getCurrentTimeSGT() {
     return convertToSGT(new Date())
 }
 
+
+
+function isValidFullISO(dateString) {
+  // Check if the input is a string
+  if (typeof dateString !== 'string') {
+    return false;
+  }
+  
+  // Regex to check for 'YYYY-MM-DDTHH:mm:ssZ'
+  const fullIsoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+
+  // Test the string against the regex
+  return fullIsoRegex.test(dateString);
+}
+
 module.exports = { 
     getDataWithSGT,
     convertToSGT,
-    getCurrentTimeSGT
+    getCurrentTimeSGT,
+    isValidFullISO
 }
 // (YYYY-MM-DDTHH:mm:ss.sssZ) 

@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>Admin and Employer Attendance Records Page</title>
     <link rel="stylesheet" href="../../style/style.css" />
     <link rel="stylesheet" href="../../style/attendance/attendance.css"/>
     <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
+    <link rel="stylesheet" href="../../style/attendance/attendanceDetail.css">
     <style>
  
 
@@ -41,7 +42,7 @@
             <div class="sidebar-link ">
                 <div class="notification-container">
                     <img src="../../images/notification.svg">
-                    <div class="notifications-count">3</div>
+                    <div class="notifications-count"></div>
                 </div>
             </div>
         </a>
@@ -63,7 +64,7 @@
     </div>
 
 
-    <h1>All Attendance for Admin or Employer</h1>
+    <h1>Attendance for Admin or Employer</h1>
     <button style="margin-bottom: 10px;">
         <a href="./createAttendance.html">Add New Attendance</a>
     </button>
@@ -90,6 +91,8 @@
 
    
 
+    <script src="../../scripts/notification/notification.js"></script>
+    <script src="../../scripts/updateManagerID.js"></script>
     <script src="../../scripts/attendance/adminEmployerAttendance.js"></script>
 </body>
 </html>

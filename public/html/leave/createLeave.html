@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="../../style/style.css" />
+    <link rel="stylesheet" href="../../style/attendance/attendance.css"/>
+    <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
+    <link rel="stylesheet" href="../../style/attendance/attendanceDetail.css">
+    <link rel="stylesheet" href="../../style/attendance/editAttendance.css">
+</head>
+<body>
+
+    <script src="../../scripts/checkLogin.js"></script>
+    <script src="../../scripts/urlBase.js"></script>
+    
+    <div class="sidebar">
+        <a href="../homePage.html">
+            <div class="sidebar-link">
+                <img src="../../images/home.svg">
+            </div>
+        </a>
+
+        <a href="../attendance/attendance.html">
+            <div class="sidebar-link">
+                    <img src="../../images/attendance.svg">                
+            </div>
+        </a>
+
+        <a href="../leave/leave.html">
+            <div class="sidebar-link">
+                <img src="../../images/leave.svg">
+            </div>
+        </a>
+
+
+        <a href="../notification/notification.html">
+            <div class="sidebar-link ">
+                <div class="notification-container">
+                    <img src="../../images/notification.svg">
+                    <div class="notifications-count">3</div>
+                </div>
+            </div>
+        </a>
+
+
+        <a href="../employee/employee.html">
+            <div class="sidebar-link">
+                <img src="../../images/info.svg">
+            </div>
+        </a>
+
+
+        <a href="../logoutPage.html">
+            <div class="sidebar-link">
+                <img src="../../images/logout.svg">
+            </div>
+        </a>
+    </div>
+
+
+    <h1>Apply Leave</h1>
+    <button style="margin-bottom: 15px;"><a href="./leaveHist.html">Back to Leave List</a></button>
+
+    <form id="editLeaveForm">
+      <input type="hidden" id="leave_id" />
+
+        <div>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" placeholder="YYYY-MM-DD" required />
+        </div>
+
+
+        <div >
+            <label for="type">Type:</label>
+            <select id="type">
+                <option value="AL">Annual Leave</option>
+                <option value="ML">Medical Leave</option>
+            </select>
+        </div>
+
+
+        <div>
+            <label for="duration">Duration:</label>
+            <select id="duration">
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+                <option value="FULL">FULL</option>
+            </select>
+        </div>
+
+        
+        <div>
+            <label for="leave_remarks">leave_remarks:</label>
+            <input type="text" id="leave_remarks" name="leave_remarks" required />
+        </div>
+
+
+
+      <button class="submit" type="submit">Submit Request</button>
+
+    </form>
+
+
+    <div id="message"></div>
+      
+    <script src="../../scripts/updateManagerID.js"></script>
+    <script src="../../scripts/leave/createLeave.js"></script>
+</body>
+</html>

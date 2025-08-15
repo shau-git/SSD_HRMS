@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
     <link rel="stylesheet" href="../style/style.css" />
+    <link rel="stylesheet" href="../style/attendance/attendanceHist.css">
     <style>
 
         .clock-in-btn {
@@ -42,12 +43,15 @@
         #time {
             font-size: 18px;
         }
+        .recent-attendance-container {
+            margin-top: 10px;
+        }
 
     </style>
 </head>
 <body>
     <script src="../scripts/checkLogin.js"></script>
-    <script src="../../scripts/urlBase.js"></script>
+    <script src="../scripts/urlBase.js"></script>
 
     <div class="sidebar">
         <a href="homePage.html">
@@ -73,7 +77,7 @@
             <div class="sidebar-link ">
                 <div class="notification-container">
                     <img src="../../images/notification.svg">
-                    <div class="notifications-count">3</div>
+                    <div class="notifications-count"></div>
                 </div>
             </div>
         </a>
@@ -106,38 +110,29 @@
     <button class="clock-out-btn">clock out</button>
 
 
+    <form id="clock-out-form">
+        <div>
+            <input type="checkbox" id="is_ot_checkbox">
+            <label for="is_ot_checkbox">Request Overtime? <span style="color: maroon">(Only for clock out)</span></label>
+        </div>
+
+        <div id="ot-hours-container" style="display: none;">
+            <label for="hours_of_ot">OT Hours:</label>
+            <input type="number" id="hours_of_ot" name="hours_of_ot" step="0.5" min="0.5">
+        </div>
+    </form>
+
+
+    <div>
+        <p class="err-Msg"></p>
+        <h3 style="margin-top: 50px;">Recent Attendance History</h3>
+        <div id="recent-attendance-container"></div>
+    </div>
+
+
+     <script src="../scripts/notification/notification.js"></script>
     <script src="../scripts/convertSGT.js"></script>
-    <script>
-        function updateTime() {
+    <script src="../scripts/homePage.js"></script>
 
-        const now = new Date();
-
-        // Array of day names (0 = Sunday, 1 = Monday, etc.)
-        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-        // Format date as YYYY-MM-DD
-        const year = now.getFullYear();
-        const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0
-        const day = now.getDate().toString().padStart(2, '0');
-        const dayName = days[now.getDay()]; // Get the day name
-
-
-
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-
-
-
-        document.getElementById('date').textContent = `${year}-${month}-${day} (${dayName})`;
-        document.getElementById('time').textContent = `${hours}:${minutes} ${ampm}`;
-
-        }
-
-        // Run once immediately
-        updateTime();
-        // Then update every 60 seconds
-        setInterval(updateTime, 60 * 1000);
-    </script>
 </body>
 </html>

@@ -6,22 +6,6 @@ const filterMonth = document.getElementById("month")
 const filterDay = document.getElementById("day")
 const filterLeaveID = document.getElementById("leave-id")
 const leaveStatus = document.getElementById("leave-status")
-const filterEmployeeID = document.getElementById("employee-id")
-const managerCheckBox = document.getElementById('manager');
-const managerCheckBoxContainer = document.getElementById('manager-container');
-
-
-if(role === 'E' || role === 'A') {
-    managerCheckBoxContainer.style.display = 'inline-block'
-}
-
-
-// only appear employee_id input box for admin
-if(role === 'A') {
-    const empIdContainer = document.getElementById('employee-id-container')
-    empIdContainer.style.display = 'inline-block'
-}
-
 
 // Function to fetch leave from the API and display them
 async function fetchLeave() {
@@ -51,16 +35,14 @@ async function fetchLeave() {
 
         if(["PENDING","APPROVED","REJECTED"].includes(leaveStatus.value)) {
             url += `status=${leaveStatus.value}&`
-        }
+        }   
         
-        if(managerCheckBox.checked) {
-            url += `manager=true`
-        }
-        
+        url += 'manager=true'
+
         // Make a GET request to your API endpoint
         const response = await fetch(url, {
-            method: "GET",
-            headers: {
+        method: "GET",
+        headers: {
                 "Content-Type": "application/json",
                 ...(token && { "Authorization": `Bearer ${token}` }) // Add header if token exists
             },
@@ -84,21 +66,22 @@ async function fetchLeave() {
                     leaveElement.classList.add("leave-item");
                     // Use data attributes or similar to store ID on the element if needed later
                     leaveElement.setAttribute("data-leave-id", leave.leave_id); 
-                    leaveElement.innerHTML = `
-                                <h3>start date time: <span style="color: rgb(31, 202, 31);">${leave.start_date_time}</span></h3>
-                                <h3>end date time: <span style="color: rgb(173, 29, 18);">${leave.end_date_time}</span></h3>
-                                <p>${leave.day}</p>
-                                <p>Leave ID: ${leave.leave_id}</p>
-                                <p>Employee ID: ${leave.employee_id}</p>
-                            `;
-
-
-                    const leaveRemarks = `${leave.duration} ${leave.type}`
                     leaveElement.innerHTML += `
-                        <h4 style="color: rgb(240, 160, 11)">${leaveRemarks.toUpperCase()}</h4>
-                        <h4>Status: <span style="color: rgb(189, 100, 17)">${leave.status}</span></h4>
-                        <button onclick="viewLeaveDetails(${leave.leave_id})">View Details</button>
-                    `
+                        <h3>start date time: <span style="color: rgb(31, 202, 31);">${leave.start_date_time}</span></h3>
+                        <h3>end date time: <span style="color: rgb(173, 29, 18);">${leave.end_date_time}</span></h3>
+                        <p style="color: Blue">${leave.day}</p>
+                        <p>Leave ID: <span class="data">${leave.leave_id}</span><p>
+                        <p>Attendance ID: <span class="data">${leave.attendance_id}</span></p>
+                        <p>Employee ID: <span class="data">${leave.employee_id}</span><p>
+                        <p>Duration: <span class="data">${leave.duration}</span></p>
+                        <p>type: <span class="data">${leave.type}</span></p>
+                        <p>leave_remarks: <span class="data">${leave.leave_remarks}</span></p>
+                        <p>status: <span class="data" style="color: red">${leave.status}</span></p>
+                        <p>submit_date_time: <span class="data">${leave.submit_date_time}</span></p>
+                        <p>response_date_time: <span class="data">${leave.response_date_time}</span></p>
+                        <p>withdraw_date_time: <span class="data">${leave.withdraw_date_time}</span></p>
+                        <p>manager_id: <span class="data">${leave.manager_id}</span></p>
+            `;
 
                     if(leave.employee_id === Number(employee_id)) {
                         leaveElement.innerHTML += `
@@ -177,17 +160,17 @@ async function handleDeleteClick(event) {
 
             // TODO: Handle success (204) and error responses (404, 500)
             if(response.status === 204 || response.status === 200) {
-                messageDiv.textContent = responseBody.msg//`Edit Attendance request deleted successfully! ID: ${attendance_Id}`
-                messageDiv.style.color = "green";
+            messageDiv.textContent = responseBody.msg//`Edit Attendance request deleted successfully! ID: ${attendance_Id}`
+            messageDiv.style.color = "green";
 
-                // document.querySelector(`[data-attendance-attendance_id = ${attendance_id}] div`).remove()
-                const elements = document.getElementsByClassName('.leave-item')
-                Array.from(elements).forEach(element => {
-                    if(element.dataset.leave_id === Number(leave_id)) {
-                    element.remove()
-                    }
-                })
-                alert(`${responseBody.msg}! Please refresh the page`)
+            // document.querySelector(`[data-attendance-attendance_id = ${attendance_id}] div`).remove()
+            const elements = document.getElementsByClassName('.leave-item')
+            Array.from(elements).forEach(element => {
+                if(element.dataset.leave_id === Number(leave_id)) {
+                element.remove()
+                }
+            })
+            alert(`${responseBody.msg}! Please refresh the page`)
 
             } else {
                 const errMsg = parseError(responseBody);

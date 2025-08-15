@@ -45,7 +45,7 @@ async function fetchAttendanceData(attendance_id) {
         return responseBody; // Return the fetched attendance object
     } else {
             const errMsg = parseError(responseBody);
-            messageDiv.textContent = `Failed to update status: ${errMsg}`;
+            messageDiv.innerHTML = `Failed to update status: ${errMsg}`;
             messageDiv.style.color = "red";
     }
 
@@ -140,11 +140,11 @@ editAttendanceForm.addEventListener("submit", async (event) => {
     // TODO: Get the attendance ID from the hidden input (attendanceIdInput.value)
     const attendance_Id = attendanceIdInput.value;
 
-	console.log(attendanceData)
-    // TODO: Implement the fetch PUT request to the API endpoint 
+
     try {
         const response = await fetch(`${apiBaseUrl}/api/attendance/editAttendanceReq/${attendance_Id}`, {
 
+            // in my backend, to edit an attendance, will firstly create a data in attendance_edit_request table, if employer approve will only update the Attendance table
             method: "POST",
             // TODO: Set the 'Content-Type': 'application/json' header
             headers: {
@@ -166,6 +166,9 @@ editAttendanceForm.addEventListener("submit", async (event) => {
 
         // TODO: Provide feedback to the user using the messageDiv (success or error messages)
         if (response.status === 201) {
+            messageDiv.innerHTML = ""
+            messageDiv.style.color = "black"
+
             const a = responseBody.attendanceReq[0]
             const attendanceElement = document.createElement("div");
             attendanceElement.classList.add("attendance-item");
@@ -178,7 +181,7 @@ editAttendanceForm.addEventListener("submit", async (event) => {
                 <p>is_ot: <span class="data">${a.is_ot}</span></p>
                 <p>hours_of_ot: <span class="data">${a.hours_of_ot}</span></p> 
                 <p>remarks: <span class="data">${a.remarks}</span></p>
-                <p>edit_status: <span class="data">${a.edit_status}</span></p>
+                <p>edit_status: <span class="data" style="color: red">${a.edit_status}</span></p>
                 <p>edit_date_time: <span class="data">${a.edit_date_time}</span></p>
                 <p>manager_id: <span class="data">${a.manager_id}</span></p>
             `
@@ -187,7 +190,7 @@ editAttendanceForm.addEventListener("submit", async (event) => {
 
         } else {
             const errMsg = parseError(responseBody);
-            messageDiv.textContent = `Failed to update status: ${errMsg}`;
+            messageDiv.innerHTML = `Failed to update status: ${errMsg}`;
             messageDiv.style.color = "red";
         }
 

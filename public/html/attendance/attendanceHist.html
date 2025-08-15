@@ -41,7 +41,7 @@
             <div class="sidebar-link ">
                 <div class="notification-container">
                     <img src="../../images/notification.svg">
-                    <div class="notifications-count">3</div>
+                    <div class="notifications-count"></div>
                 </div>
             </div>
         </a>
@@ -81,15 +81,46 @@
         <label for="day">Day: </label>
         <input id="day" type="number" min="1" max="31" placeholder="DD">
 
-        <label for="attendance_id">Attendance ID: </label>
+        <label for="attendance-id">Attendance ID: </label>
         <input id="attendance-id" type="number" min="1" placeholder="Attendance ID">
+
+
+        <label for="edit-status">Edit Status: </label>
+        <select id="edit-status" type="text" placeholder="Edit Status">
+            <option value="">ALL</option>
+            <option value="PENDING">PENDING</option>
+            <option value="APPROVED">APPROVED</option>
+            <option value="REJECTED">REJECTED</option>
+        </select>
+
+        <label for="ot-req-status">Leave Status: </label>
+        <select id="ot-req-status" type="text" placeholder="OT Request Status">
+            <option value="">ALL</option>
+            <option value="PENDING">PENDING</option>
+            <option value="APPROVED">APPROVED</option>
+            <option value="REJECTED">REJECTED</option>
+        </select>
+
+
+        <div id="manager-container" style="display: hidden">
+            <input type="checkbox" id="manager">
+            <label for="manager">Get Admin or Employer Request?</span></label>
+        </div>
+
+        <div id="employee-id-container" style="display: none;">
+            <label for="employee-id">Employee ID: </label>
+            <input id="employee-id" type="number" min="1" placeholder="Employee ID">
+        </div>
+
+
     </div>
 
     <div id="message"></div>
     <div id="attendanceList">Loading attendance list...</div>
 
    
-
+    <script src="../../scripts/notification/notification.js"></script>
+    <script src="../../scripts/updateManagerID.js"></script>
     <script src="../../scripts/attendance/attendanceHist.js"></script>
 </body>
 </html>

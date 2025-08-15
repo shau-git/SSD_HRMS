@@ -54,49 +54,50 @@ async function fetchAttendance() {
 
 
     if(response.status === 200) {
+        messageDiv.innerHTML = ""
+        messageDiv.style.color = "black"
            // Clear previous content and display attendance
         attendanceListDiv.innerHTML = ""; // Clear loading message
         if (responseBody.total === 0) {
             attendanceListDiv.innerHTML = "<p>No attendance found.</p>";
         } else {
-            responseBody.attendances.forEach((attendance) => {
+            responseBody.attendances.forEach((a) => {
                 const attendanceElement = document.createElement("div");
                 attendanceElement.classList.add("attendance-item");
                 // Use data attributes or similar to store ID on the element if needed later
-                attendanceElement.setAttribute("data-attendance-id", attendance.attendance_id); 
+                attendanceElement.setAttribute("data-attendance-id", a.attendance_id); 
                 attendanceElement.innerHTML = `
-                            <h3>start date time: <span style="color: rgb(31, 202, 31);">${attendance.start_date_time}</span></h3>
-                            <h3>end date time: <span style="color: rgb(173, 29, 18);">${attendance.end_date_time}</span></h3>
-                            <p>${attendance.day}</p>
-                            <p>Attendance ID: ${attendance.attendance_id}</p>
-                            <p>Employee ID: ${attendance.employee_id}</p>
+                            <h3>start date time: <span style="color: rgb(31, 202, 31);">${a.start_date_time}</span></h3>
+                            <h3>end date time: <span style="color: rgb(173, 29, 18);">${a.end_date_time}</span></h3>
+                            <p style="color: Blue">${a.day}</p>
+                            <p>Attendance ID: <span class="data">${a.attendance_id}</span></p>
+                            <p>Employee ID: <span class="data">${a.employee_id}</span><p>
+                            <p>Leave ID: <span class="data">${a.leave_id}</span><p>
+                            <p>total_min_work: <span class="data">${a.total_min_work}</span></p>
+                            <p>total_min_adjusted: <span class="data">${a.total_min_adjusted}</span></p>
+                            <p>is_ot: <span class="data">${a.is_ot}</span></p>
+
+                            <p>hours_of_ot: <span class="data">${a.hours_of_ot}</span></p> 
+                            <p>remarks: <span class="data">${a.remarks}</span></p>
+                            <p>leave_remarks: <span class="data">${a.leave_remarks}</span></p>
+                            <p>is_amended: <span class="data" style="color: red;">${a.is_amended}</span></p>
+                            <p>edit_status: <span class="data">${a.edit_status}</span></p>
+                            <p>ot_req_status: <span class="data">${a.ot_req_status}</span></p>
+                            <p>edit_date_time: <span class="data">${a.edit_date_time}</span></p>
+                            <p>response_date_time: <span class="data">${a.response_date_time}</span></p>
+                            <p>manager_id: <span class="data">${a.manager_id}</span></p>
                         `;
 
-                if(attendance.leave_id !== null) {
-                    const leaveRemarks = attendance.leave_remarks
-                    const leaveInfo = leaveRemarks.slice(11,leaveRemarks.length)
-                    attendanceElement.innerHTML += `<h4 style="color: rgb(240, 160, 11)">${leaveInfo.toUpperCase()}</h4>`
-                }
-
-                if(attendance.edit_status !== null) {
-                    attendanceElement.innerHTML += `<h4>Edit status: <span style="color: rgb(189, 100, 17)">${attendance.edit_status}</span></h4>`
-                }
-
                 attendanceElement.innerHTML += `
-                            <button onclick="viewAttendanceDetails(${attendance.attendance_id})">View Details</button>
-                            <button onclick="editAttendance(${attendance.attendance_id})">Edit</button>
+                            <!--buttononclick="viewAttendanceDetails(${a.attendance_id})">View Details</button-->
+                            <button onclick="editAttendance(${a.attendance_id})">Edit</button>
+                            <div class="delete-container">
+                                <button class="delete-btn" id="delete-id-${a.attendance_id}" data-id="${a.attendance_id}">Delete</button>
+                                <button class="yes-btn" id="yes-id-${a.attendance_id}" style="display:none";>Yes</button>
+                                <button class="cancel-btn" id="cancel-id-${a.attendance_id}" style="display:none";>Cancel</button>
+                            </div>
 
                 `
-
-                if(role === 'A') {
-                    attendanceElement.innerHTML += `
-                        <div class="delete-container">
-                            <button class="delete-btn" id="delete-id-${attendance.attendance_id}" data-id="${attendance.attendance_id}">Delete</button>
-                            <button class="yes-btn" id="yes-id-${attendance.attendance_id}" style="display:none";>Yes</button>
-                            <button class="cancel-btn" id="cancel-id-${attendance.attendance_id}" style="display:none";>Cancel</button>
-                        </div>
-                    `
-                }
                 attendanceListDiv.appendChild(attendanceElement);
             });
             // Add event listeners for delete buttons after they are added to the DOM
@@ -188,7 +189,7 @@ async function handleDeleteClick(event) {
 
             } else {
                 const errMsg = parseError(responseBody);
-                messageDiv.textContent = `Failed to update status: ${errMsg}`;
+                messageDiv.innerHTML = `Failed to update status: ${errMsg}`;
                 messageDiv.style.color = "red";
             }
         

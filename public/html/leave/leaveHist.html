@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../../style/style.css" />
     <link rel="stylesheet" href="../../style/attendance/attendance.css"/>
     <link rel="stylesheet" href="../../style/attendance/attendanceHist.css">
+    <link rel="stylesheet" href="../../style/attendance/attendanceDetail.css">
     <style>
  
 
@@ -24,7 +25,7 @@
             </div>
         </a>
 
-        <a href="./attendance.html">
+        <a href="../attendance/attendance.html">
             <div class="sidebar-link">
                     <img src="../../images/attendance.svg">                
             </div>
@@ -41,7 +42,7 @@
             <div class="sidebar-link ">
                 <div class="notification-container">
                     <img src="../../images/notification.svg">
-                    <div class="notifications-count">3</div>
+                    <div class="notifications-count"></div>
                 </div>
             </div>
         </a>
@@ -63,13 +64,13 @@
     </div>
 
 
-    <h1>All Leave</h1>
+    <h1>All Leave Records</h1>
     <button style="margin-bottom: 10px;">
-        <a href="./createLeave.html">Add New Leave</a>
+        <a href="./createLeave.html">Apply Leave</a>
     </button>
     <br>
 
-    <button id="fetchAttendanceBtn">Refresh Leave List</button><br>
+    <button id="fetchLeaveBtn">Refresh Leave List</button><br>
 
     <div class="filter-container">
         <label for="'year">Year: </label>
@@ -82,14 +83,33 @@
         <input id="day" type="number" min="1" max="31" placeholder="DD">
 
         <label for="leave_id">Leave ID: </label>
-        <input id="attendance-id" type="number" min="1" placeholder="Leave ID">
+        <input id="leave-id" type="number" min="1" placeholder="Leave ID">
+
+        <label for="leave-status">Leave Status: </label>
+        <select id="leave-status" type="text" placeholder="Leave Status">
+            <option value="">All</option>
+            <option value="PENDING">PENDING</option>
+            <option value="APPROVED">APPROVED</option>
+            <option value="REJECTED">REJECTED</option>
+        </select>
+
+        <div id="employee-id-container" style="display: none;">
+            <label for="employee-id">Employee ID: </label>
+            <input id="employee-id" type="number" min="1" placeholder="Employee ID">
+        </div>
+        
+
+        <div id="manager-container" style="display: hidden">
+            <input type="checkbox" id="manager">
+            <label for="manager">Get Admin or Employer Leave Records?</span></label>
+        </div>
     </div>
 
     <div id="message"></div>
     <div id="leaveList">Loading leave list...</div>
 
-   
-
-    <script src="../../scripts/attendance/leaveHist.js"></script>
+    <script src="../../scripts/notification/notification.js"></script>
+    <script src="../../scripts/updateManagerID.js"></script>
+    <script src="../../scripts/leave/leaveHist.js"></script>
 </body>
 </html>

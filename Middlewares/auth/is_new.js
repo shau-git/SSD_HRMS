@@ -23,7 +23,7 @@ const is_new = async(req, res, next) => {
     // if user/employee login to account first time, inform them to change password
     if(employee.is_new === true) {
         return res.status(StatusCodes.FORBIDDEN).json({
-            msg: "Please change your password",
+            error: "Please change your password",
             employee: response ,
         })
     }

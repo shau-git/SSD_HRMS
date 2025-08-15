@@ -6,7 +6,7 @@ const asyncWrapper = require("./utils/async")
 const { getDataWithSGT }= require("./utils/convertToSGT")
 
 // GET ALL employee
-const getAllEmployees = async(req,res) => {
+const getAllEmployees = asyncWrapper(async(req,res) => {
 
     console.log(req.query)
 
@@ -21,6 +21,8 @@ const getAllEmployees = async(req,res) => {
 
     // parsing the query string, queryObject will be affected
     parseReqQuery(queryObject, req.query)
+    
+    let {is_active} = req.query
 
     // if is employer/manager visiting this route, only allow them to query all of its employee result
     // so it will the employer would not able to query their data from here
@@ -35,6 +37,16 @@ const getAllEmployees = async(req,res) => {
 
     }
 
+
+    if (payload.role === 'A') {
+       if ( is_active === 'false') {
+            queryObject.where.is_active = false
+       } else if (is_active === 'true') {
+            queryObject.where.is_active = true
+        }
+    } 
+
+
     // start executing the GET request
     let employees = await Employee.findAll(queryObject)
 
@@ -47,38 +59,35 @@ const getAllEmployees = async(req,res) => {
     const responseWithSGT = getDataWithSGT(employees)
 
     return res.status(StatusCodes.OK).json({total: employees.length, employees: responseWithSGT})
-}
+})
 
 
 // GET one employee
-const getOneEmployee = async(req, res) => {
+const getOneEmployee = asyncWrapper(async(req, res) => {
 
     // get employee_id in the req.params
     const {employee_id} = req.params
 
     const payload = req.employee
     // query the employee
-    const employee = await Employee.findByPk(employee_id)
+    let employee = await Employee.findByPk(employee_id)
+
+    // const manager = await Employee.findOne({where: {employee_id: employee.dataValues.manager_id}})
 
     // if no employee data is found, means the id is unavailable
     if(!employee) {throw new NotFoundError(`Employee id not found`)}
 
-    // if someone who query a use data is neither the correct manager/employer or an admin, throw forbidden error
-    if (payload.role !== 'A') {
-        if(payload.employee_id !== employee.manager_id) {
-            throw new ForbiddenError("This side is forbidden")
-        } 
-    }
-
     // convert all the datetime field to SGT for view
     const responseWithSGT = getDataWithSGT(employee)
 
-    return res.status(StatusCodes.OK).json({total: employee.length, employee: responseWithSGT})
-}
+    
+
+    return res.status(StatusCodes.OK).json({total: responseWithSGT.length, employee: responseWithSGT})
+})
 
 
 // PUT employee
-const updateEmployee = async(req, res) => {
+const updateEmployee = asyncWrapper(async(req, res) => {
 
     // get employee_id in the request parameters
     const {employee_id} = req.params
@@ -104,18 +113,21 @@ const updateEmployee = async(req, res) => {
     if (payload.role === "A" ) { 
 
         // hash the password if request for changing, will return back the same obj with the password hashed
-        toUpdateEmployee = await Employee.hashPassword(toUpdateEmployee)
+        const {hashed_password} = await Employee.hashPassword(toUpdateEmployee)
+
+        // change the passowrd in the req.body to a hashed one before updating to the database
+        toUpdateEmployee.hashed_password = hashed_password
 
         // update the employee data
         await Employee.update(toUpdateEmployee, {
             where: {employee_id}
         })
-       
+
     } else if (employee_id == payload.employee_id) { // if the actual employee visit this page, only allowed them to change the password
-        
+
         // make sure the employee provide the password
         if(toUpdateEmployee.hashed_password) {
-            
+
             if (employee.is_new) {
 
                 // ensure there is password provided for changing, because changing password for first time login in is essential
@@ -126,17 +138,20 @@ const updateEmployee = async(req, res) => {
                 }
                 
             } 
+
             // hash the password before saving to DB
-            toUpdateEmployee = await Employee.hashPassword(toUpdateEmployee)
+            const hashingpassword = await Employee.hashPassword(toUpdateEmployee) // return hashed_password: '$2b$10$kYr3oERXnhiLSKXULY1tIuqWgNWDPGvL2SzDXDQRqX6lX.MMBytuK'
 
             // proceed to update
-            updatedEmployee = await Employee.update(
+            const updatedtingPassword = await Employee.update(
                 {
-                    hashed_password: toUpdateEmployee.hashed_password,
+                    hashed_password: hashingpassword.hashed_password,
                     is_new: false   // update the is_new to false, after changing password user will not be the first time to login anymore
                 }, 
                 { where: {employee_id} }
             )
+
+            console.log('updated', updatedtingPassword)
 
         } else {
 
@@ -150,27 +165,17 @@ const updateEmployee = async(req, res) => {
 
     // get the newly updated employee data
     updatedEmployee = await Employee.findByPk(employee.employee_id) //[1]
-
+console.log('new onnnnnn', updatedEmployee)
     // convert all the datetime field to SGT for view
     const responseWithSGT = getDataWithSGT(updatedEmployee)
 
     return res.status(StatusCodes.OK).json({total: responseWithSGT.length, employee: responseWithSGT})
 
-}
+})
 
  
 // DELETE employee (only admin is authorized)
-const deleteEmployee = async(req,res) => {
-
-    // get the payload that is attached in the req.employee
-    // const payload = req.employee
-
-    // console.log(payload)
-
-    // // only Admin can delete an account
-    // if(payload.role !== 'A') {
-    //     throw new ForbiddenError("This side is forbidden")
-    // }
+const deleteEmployee = asyncWrapper(async(req,res) => {
 
     // get the employee_id from the request parameter
     const {employee_id} = req.params
@@ -185,7 +190,7 @@ const deleteEmployee = async(req,res) => {
     // const updatedEmployee = await Employee.findByPk(employee_id)
 
     return res.status(StatusCodes.OK).json({msg: `Employee with id ${employee_id} deleted.`})
-}
+})
 
 module.exports = {
     getAllEmployees,

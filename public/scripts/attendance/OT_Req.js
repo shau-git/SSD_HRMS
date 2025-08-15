@@ -148,24 +148,6 @@ async function fetchAttendance() {
 }
 
 
-// parsing error [object object]
-function parseError(responseErr) {
-    let errorHtml = "";
-
-    if (typeof responseErr.error === "string") {
-        // Single error message
-        errorHtml = `<p style="color: red;">${responseErr.error}</p>`;
-    } else if (typeof responseErr.error === "object") {
-        // Multiple field errors
-        Object.values(responseErr.error).forEach(messages => {
-            messages.forEach(msg => {
-                errorHtml += `<p style="color: red;">${msg}</p>`;
-            });
-        });
-    }
-    return errorHtml
-}
-
 
 // Placeholder functions for other actions (to be implemented later or in other files)
 async function viewAttendanceDetails(attendance_id) {
@@ -183,24 +165,24 @@ async function updateOTStatus(attendanceId, newStatus, actionButtonsDiv) {
         messageDiv.style.color = "blue";
 
         const response = await fetch(`${apiBaseUrl}/api/attendance/responseReq/${attendanceId}`, {
-        method: 'PUT', // Use PUT or PATCH for updates
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token && {
-            'Authorization': `Bearer ${token}`
-            })
-        },
-        body: JSON.stringify({
-                ot_req_status: newStatus
-            }),
+            method: 'PUT', // Use PUT or PATCH for updates
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && {
+                'Authorization': `Bearer ${token}`
+                })
+            },
+            body: JSON.stringify({
+                    ot_req_status: newStatus
+                }),
         });
 
         const responseBody = response.headers
-        .get("content-type")
-        ?.includes("application/json") ?
-        await response.json() : {
-            message: response.statusText
-        };
+            .get("content-type")
+            ?.includes("application/json") ?
+            await response.json() : {
+                message: response.statusText
+            };
 
         if (response.ok) {
             messageDiv.textContent = `OT request status for attendance id ${attendanceId} updated to ${newStatus} successfully!`;
@@ -225,7 +207,7 @@ async function updateOTStatus(attendanceId, newStatus, actionButtonsDiv) {
             }
         } else {
             const errMsg = parseError(responseBody);
-            messageDiv.textContent = `Failed to update status: ${errMsg}`;
+            messageDiv.innerHTML = `Failed to update status: ${errMsg}`;
             messageDiv.style.color = "red";
         }
     } catch (err) {

@@ -35,8 +35,9 @@ body {
     color: white;
     font-size: 12px;
     padding: 2px 6px; 
-    border-radius: 10px;;
+    border-radius: 10px;
 }
+
 a {
     color: black;
     text-decoration: none;

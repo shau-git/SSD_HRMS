@@ -27,12 +27,13 @@ async function loginUser(event)
 
         // Check for API response status (e.g., 201 Created, 400 Bad Request, 500 Internal Server Error)
         const responseBody = response.headers
-        .get("content-type")
-        ?.includes("application/json")
-        ? await response.json()
-        : { message: response.statusText };
+            .get("content-type")
+            ?.includes("application/json")
+            ? await response.json()
+            : { message: response.statusText };
 
         if (response.status === 200 || response.status === 201 ) {
+
             console.log("Login successful");
             messageDiv.textContent = "Login successful";
             messageDiv.style.color = "green";
@@ -41,28 +42,49 @@ async function loginUser(event)
                 localStorage.setItem("token", responseBody.token);
             }
             if (responseBody.employee) {
-                console.log(responseBody.employee.role, 'empl')
+                console.log(responseBody.employee)
                 localStorage.setItem("role", responseBody.employee.role);
+                localStorage.setItem("employee_id", responseBody.employee.employee_id);
+                localStorage.setItem("is_new", responseBody.employee.is_new);
             }
             loginForm.reset(); // Clear the form after success
             window.location.href = "/html/homePage.html"; // Redirect user to attendnace page.
-        } else if (response.status === 401 && responseBody.msg === 'Please change your password') {
+
+        } else if (response.status === 401 && responseBody.msg === 'Please change your password') { // new user login, require them to change password
+            
+            if (responseBody.token) {
+                localStorage.setItem("token", responseBody.token);
+            }
+            if (responseBody.employee) {
+                console.log(responseBody.employee)
+                localStorage.setItem("role", responseBody.employee.role);
+                localStorage.setItem("employee_id", responseBody.employee.employee_id);
+                localStorage.setItem("is_new", responseBody.employee.is_new);
+            }
             window.location.href = "/html/changePassword.html"
-        } else if (response.status === 401 || response.status === 400) {
+
+        } else if (response.status === 401 || response.status === 400) {  // having authentication error
+
             messageDiv.textContent = `Authentication Error: ${responseBody.error}`;
             messageDiv.style.color = "red";
             console.log("Login failed");
-        } else if (response.status === 500) {
+
+        } else if (response.status === 500) {  // server error
+
             messageDiv.textContent = `${responseBody.error}`;
             messageDiv.style.color = "red";
             console.log("Login failed");
+
         } else {
+
             // Handle other potential API errors (e.g., 500 from error handling middleware)
             throw new Error(
                 `API error! status: ${response.status}, message: ${responseBody.error}`
             );
+
         }
     } catch (error) {
+
         console.error(error)
         messageDiv.textContent = `Failed to login: ${error.message}`;
         messageDiv.style.color = "red";

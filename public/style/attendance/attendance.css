@@ -13,7 +13,7 @@ body {
     display: flex;
 }
 .attendance-container:hover,
-.leave-container:hover {
+.leave-container:hover{
     background-color: rgb(185, 184, 184);
     cursor: pointer;
 }

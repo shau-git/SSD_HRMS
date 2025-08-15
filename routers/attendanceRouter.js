@@ -12,7 +12,8 @@ const {
         markAsRead,
         updateAttendanceRecord,
         recreateAttendance,
-        deleteAttendance
+        deleteAttendance,
+        getRecentAttendance
          } = require("../Controllers/attendanceController")
     
 const {
@@ -28,6 +29,11 @@ const {
 router.route('/')
     .get( validateQueryMiddleware, getAllAttendance ) // get attendance
     .post( validateEditAttendance_W, recreateAttendance ) // to recreate attendance for those forgot to clock in /out
+
+
+// GET Last 3 Attendance Records for the logged-in employee
+router.get('/recent', getRecentAttendance);
+
 
 
 // for clock in /out

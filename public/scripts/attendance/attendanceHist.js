@@ -5,6 +5,18 @@ const filterYear = document.getElementById("year")
 const filterMonth = document.getElementById("month")
 const filterDay = document.getElementById("day")
 const filterAttendanceID = document.getElementById("attendance-id")
+const filterEmployeeID = document.getElementById("employee-id")
+const editStatus = document.getElementById("edit-status")
+const otReqStatus = document.getElementById("ot-req-status")
+const managerCheckBox = document.getElementById('manager');
+const managerCheckBoxContainer = document.getElementById('manager-container');
+
+
+// admin can choose to filter bt employee_id
+if(role === 'A') {
+    const empIdContainer = document.getElementById('employee-id-container')
+    empIdContainer.style.display = 'block'
+}
 
 
 // Function to fetch attendance from the API and display them
@@ -33,6 +45,22 @@ async function fetchAttendance() {
         url += `attendance_id=${filterAttendanceID.value}&`
     }
 
+    if(filterEmployeeID.value) {
+        url += `employee_id=${filterEmployeeID.value}&`
+    }
+
+    if(["PENDING","APPROVED","REJECTED"].includes(editStatus.value)) {
+            url += `edit_status=${editStatus.value}&`
+        }
+
+    if(["PENDING","APPROVED","REJECTED"].includes(otReqStatus.value)) {
+            url += `ot_req_status=${otReqStatus.value}&`
+        }
+
+    if(managerCheckBox.checked) {
+            url += `manager=true&`
+        }
+
     // Make a GET request to your API endpoint
     const response = await fetch(url, {
       method: "GET",
@@ -50,6 +78,8 @@ async function fetchAttendance() {
 
 
     if(response.status === 200) {
+        messageDiv.innerHTML = ""
+        messageDiv.style.color = "black"
            // Clear previous content and display attendance
         attendanceListDiv.innerHTML = ""; // Clear loading message
         if (responseBody.total === 0) {
@@ -169,22 +199,22 @@ async function handleDeleteClick(event) {
 
             // TODO: Handle success (204) and error responses (404, 500)
             if(response.status === 204 || response.status === 200) {
-            messageDiv.textContent = responseBody.msg//`Edit Attendance request deleted successfully! ID: ${attendance_Id}`
-            messageDiv.style.color = "green";
+                messageDiv.textContent = responseBody.msg//`Edit Attendance request deleted successfully! ID: ${attendance_Id}`
+                messageDiv.style.color = "green";
 
-            // TODO: On successful deletion, remove the attendance element from the DOM
-            // document.querySelector(`[data-attendance-attendance_id = ${attendance_id}] div`).remove()
-            const elements = document.getElementsByClassName('.attendance-item')
-            Array.from(elements).forEach(element => {
-                if(element.dataset.attendance_id === Number(attendance_Id)) {
-                element.remove()
-                }
+                // TODO: On successful deletion, remove the attendance element from the DOM
+                // document.querySelector(`[data-attendance-attendance_id = ${attendance_id}] div`).remove()
+                const elements = document.getElementsByClassName('.attendance-item')
+                Array.from(elements).forEach(element => {
+                    if(element.dataset.attendance_id === Number(attendance_Id)) {
+                    element.remove()
+                    }
             })
             alert('Please refresh the page')
 
             } else {
                 const errMsg = parseError(responseBody);
-                messageDiv.textContent = `Failed to update status: ${errMsg}`;
+                messageDiv.innerHTML = `Failed to update status: ${errMsg}`;
                 messageDiv.style.color = "red";
             }
         

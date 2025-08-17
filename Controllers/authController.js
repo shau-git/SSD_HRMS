@@ -57,14 +57,14 @@ const login = async(req, res) => {
     })
 
     if(!employee) {
-         throw new BadRequestError("Invalid Credentials")
+         throw new UnauthenticatedError("Invalid Credentials")
     }
 
     // Compare password with hash
     const isPasswordCorrect = await employee.comparePassword(hashed_password)
 
     if(!isPasswordCorrect) {
-         throw new UnauthenticatedError("Password incorrect")
+         throw new BadRequestError("Password incorrect")
     }
 
     // Genrenate JWT token

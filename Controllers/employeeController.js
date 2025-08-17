@@ -1,7 +1,6 @@
 const { StatusCodes } = require("http-status-codes")
 const Employee = require("../models/employee")
 const { NotFoundError, BadRequestError,  ForbiddenError } = require("../errors/errors")
-const { parseReqQuery } = require("./utils/controllerUtils")
 const asyncWrapper = require("./utils/async")
 const { getDataWithSGT }= require("./utils/convertToSGT")
 
@@ -18,9 +17,6 @@ const getAllEmployees = asyncWrapper(async(req,res) => {
 
     // prepare the queryObject variable to store parsed query string
     const queryObject = {where: {}}
-
-    // parsing the query string, queryObject will be affected
-    parseReqQuery(queryObject, req.query)
     
     let {is_active} = req.query
 
@@ -37,6 +33,7 @@ const getAllEmployees = asyncWrapper(async(req,res) => {
 
     }
 
+    queryObject.is_active = true
 
     if (payload.role === 'A') {
        if ( is_active === 'false') {
@@ -165,7 +162,7 @@ const updateEmployee = asyncWrapper(async(req, res) => {
 
     // get the newly updated employee data
     updatedEmployee = await Employee.findByPk(employee.employee_id) //[1]
-console.log('new onnnnnn', updatedEmployee)
+
     // convert all the datetime field to SGT for view
     const responseWithSGT = getDataWithSGT(updatedEmployee)
 

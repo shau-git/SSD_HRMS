@@ -31,14 +31,6 @@ const baseAttendanceSchema = {
         'string.empty': 'Remarks cannot be empty',
         'string.max': 'Remarks cannot exceed 40 characters.'
         }),
-
-  // total_min_work: Joi.number().integer().min(0).max(1440)
-  //   .messages({
-  //     'number.base': 'Total minutes worked must be a number.',
-  //     'number.integer': 'Total minutes worked must be an Integer.',
-  //     'number.min': 'Total minutes worked cannot be negative.',
-  //     'number.max': 'Total minutes worked cannot be greater than 1440 (24 hours).'
-  //   }),
     hours_of_ot: Joi.number().integer().min(0).max(24).default(0)
         .messages({
         'number.base': 'Hours of OT must be a number.',
@@ -208,8 +200,7 @@ const operationRules = {
 
     is_amended: commonRulesEdit.markAttendance.is_amended, //forbidden 
 
-    edit_status: baseAttendanceSchema.edit_status.required()
-      .messages({ 'any.required': "edit_status is required" }),
+    edit_status: commonRulesEdit.editAttendance.edit_status,
     // remarks is optional here
 
     // manager_id is optional here , but will only works if the role is admin, controller will check

@@ -66,7 +66,7 @@ router.route('/editAttendanceReq/:attendance_id')
     .all( validateAttendanceId )
     .post( validateEditAttendance_W, editAttendance_W ) // Worker
     // PUT employer response to the edit attendance req in edit_attendance_request table, admin can change the manager_id in the attendance_edit_request table from here also
-    .put( validateEditAttendance_E_A, responseEditAttendanceRequest_E_A ) // admin, employer 
+    .put(  responseEditAttendanceRequest_E_A ) // admin, employer  
     .delete( deleteEditAttendance_W )
 
 module.exports = router

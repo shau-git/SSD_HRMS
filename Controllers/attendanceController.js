@@ -651,7 +651,6 @@ const editAttendance_W = asyncWrapper(async(req, res) => {
         end_date_time = new Date(end_date_time)
     }
 
-    console.log('yoyo', start_date_time, end_date_time)
     console.log(new Date(start_date_time))
     console.log(isValidFullISO(start_date_time))
     console.log(start_date_time.toDateString().slice(0,3))
@@ -752,12 +751,12 @@ const responseEditAttendanceRequest_E_A = asyncWrapper(async(req, res) => {
         } else {
             
             // update the manager_id
-            await Attendance.update(
+            await AttendanceEditRequest.update(
                 {manager_id: editAttendanceReq.manager_id},
                 { where: {attendance_id} }
             )
 
-            const attendance = await Attendance.findOne({
+            const attendance = await AttendanceEditRequest.findOne({
                 where: {attendance_id},
             })
 
@@ -768,21 +767,23 @@ const responseEditAttendanceRequest_E_A = asyncWrapper(async(req, res) => {
 
         }
     }
-    
-    // admin cannot make the status to APPROVED etc, they can only change manager id
-    // if(payload.role === 'A' && req.body.edit_status ) {
-    //     throw new ForbiddenError("responding the request is forbidden")
-    // }
 
+    let responseReq;
 
-    // update the edit attendance req (response can be done at here)
-    const responseReq = await AttendanceEditRequest.update(
-        editAttendanceReq,
-        {where: {attendance_id}}
-    )
+    if (["APPROVED", "REJECTED"].includes(editAttendanceReq.edit_status)) {
+            // update the edit attendance req
+        responseReq = await AttendanceEditRequest.update(
+            editAttendanceReq,
+            {where: {attendance_id}}
+        )
+    }
+
 
     console.log(responseReq)
 
+    if (!responseReq || responseReq.length === 0) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: "Fail to update edit attendance request"}) 
+    }
 
     // check if the edit attendance request updated successfully, if so modifiy the actual attendance table
     if(responseReq[0] === 1) {
@@ -848,7 +849,7 @@ const responseEditAttendanceRequest_E_A = asyncWrapper(async(req, res) => {
             where: {attendance_id}
         })
 
-        return res.status(StatusCodes.OK).json({total: response.length, attendance: responseWithSGT})
+        return res.status(StatusCodes.OK).json({total: responseWithSGT.length, attendance: responseWithSGT})
 
     } else {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: "Fail to update edit attendance request"})

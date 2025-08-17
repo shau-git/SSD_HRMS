@@ -105,10 +105,11 @@ async function markAsRead(path, id, field, btnId) {
         return;
     }
 
-    const data = { [field]: true }; // Dynamic property name
+    const data = {}; // Dynamic property name
+    data[field] = true
 
     try {
-        const response = await fetch(`${apiBaseUrl}/api/${path}/${id}`, {
+        const response = await fetch(`${apiBaseUrl}/api/${path}/markRead/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

@@ -10,105 +10,1253 @@
   "schemes": [
     "http"
   ],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+    }
+  },
+  "definitions": {
+    "RegisterEmployeeRequest": {
+      "type": "object",
+      "required": [
+        "email",
+        "first_name", 
+        "last_name",
+        "hashed_password",
+        "role",
+        "medical_leave",
+        "annual_leave",
+        "manager_id"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 10,
+          "maxLength": 80,
+          "pattern": "@company\\.com$",
+          "example": "kaneki@company.com",
+          "description": "Employee email address. Must end with @company.com and be unique in the system"
+        },
+        "first_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "example": "Kaneki",
+          "description": "Employee's first name. Will be automatically formatted (capitalized and trimmed)"
+        },
+        "last_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "example": "Ken",
+          "description": "Employee's last name. Will be automatically formatted (capitalized and trimmed)"
+        },
+        "hashed_password": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 255,
+          "example": "12345",
+          "description": "Plain text password (will be automatically hashed with bcrypt before storage)"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["W", "E", "A", "w", "e", "a"],
+          "example": "W",
+          "description": "Employee role: 'W' for Worker, 'E' for Employer/Manager, 'A' for Admin. Case insensitive, will be converted to uppercase"
+        },
+        "medical_leave": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "example": 14,
+          "description": "Medical leave allocation in days. Cannot be negative"
+        },
+        "annual_leave": {
+          "type": "number",
+          "format": "float", 
+          "minimum": 0,
+          "example": 14,
+          "description": "Annual leave allocation in days. Cannot be negative"
+        },
+        "manager_id": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 3,
+          "description": "ID of the employee's manager. Must reference an existing active employee"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LoginRequest": {
+      "type": "object",
+      "required": [
+        "email",
+        "hashed_password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "example": "employer@company.com",
+          "description": "Employee's registered email address"
+        },
+        "hashed_password": {
+          "type": "string",
+          "example": "12345",
+          "description": "Employee's password"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClockInRequest": {
+      "type": "object",
+      "properties": {
+        "start_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T08:00:00.000Z",
+          "description": "Clock in time. If not provided, current Singapore time will be used"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClockOutRequest": {
+      "type": "object",
+      "properties": {
+        "end_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T17:30:00.000Z",
+          "description": "Clock out time. If not provided, current Singapore time will be used"
+        },
+        "is_ot": {
+          "type": "boolean",
+          "default": false,
+          "example": true,
+          "description": "Whether overtime is being claimed"
+        },
+        "hours_of_ot": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "default": 0,
+          "example": 2,
+          "description": "Hours of overtime worked. Required when is_ot is true"
+        }
+      },
+      "additionalProperties": false
+    },
+    "EditAttendanceRequest": {
+      "type": "object",
+      "required": [
+        "start_date_time",
+        "end_date_time",
+        "remarks"
+      ],
+      "properties": {
+        "start_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T08:00:00.000Z",
+          "description": "Corrected clock in time"
+        },
+        "end_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T17:30:00.000Z",
+          "description": "Corrected clock out time"
+        },
+        "is_ot": {
+          "type": "boolean",
+          "default": false,
+          "example": false,
+          "description": "Whether overtime is being claimed"
+        },
+        "hours_of_ot": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 24,
+          "example": 2,
+          "description": "Hours of overtime worked. Required when is_ot is true"
+        },
+        "remarks": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "example": "Forgot to clock out yesterday",
+          "description": "Reason for the attendance edit request"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RecreateAttendanceRequest": {
+      "type": "object",
+      "required": [
+        "start_date_time",
+        "end_date_time",
+        "remarks"
+      ],
+      "properties": {
+        "start_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T08:00:00.000Z",
+          "description": "Clock in time for the missed attendance"
+        },
+        "end_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T17:30:00.000Z",
+          "description": "Clock out time for the missed attendance"
+        },
+        "is_ot": {
+          "type": "boolean",
+          "default": false,
+          "example": false,
+          "description": "Whether overtime is being claimed"
+        },
+        "hours_of_ot": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 24,
+          "example": 2,
+          "description": "Hours of overtime worked. Required when is_ot is true"
+        },
+        "remarks": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "example": "Forgot to clock in/out",
+          "description": "Reason for recreating the attendance record"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AttendanceStatusUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "ot_req_status": {
+          "type": "string",
+          "enum": ["APPROVED", "REJECTED"],
+          "example": "APPROVED",
+          "description": "Response to overtime request"
+        },
+        "edit_status": {
+          "type": "string",
+          "enum": ["APPROVED", "REJECTED"],
+          "example": "APPROVED",
+          "description": "Response to attendance edit request"
+        },
+        "manager_id": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 3,
+          "description": "Change manager ID (Admin only)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MarkAsReadRequest": {
+      "type": "object",
+      "required": ["read"],
+      "properties": {
+        "read": {
+          "type": "boolean",
+          "example": true,
+          "description": "Mark notification as read"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApplyLeaveRequest": {
+      "type": "object",
+      "required": [
+        "type",
+        "date",
+        "leave_remarks",
+        "duration"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["AL", "ML"],
+          "example": "AL",
+          "description": "Leave type: 'AL' for Annual Leave, 'ML' for Medical Leave"
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "example": "2025-08-20",
+          "description": "Leave date in YYYY-MM-DD format"
+        },
+        "leave_remarks": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "example": "Family emergency",
+          "description": "Reason for taking leave"
+        },
+        "duration": {
+          "type": "string",
+          "enum": ["FULL", "AM", "PM"],
+          "example": "FULL",
+          "description": "Leave duration: 'FULL' for full day, 'AM' for morning, 'PM' for afternoon"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LeaveStatusUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["APPROVED", "REJECTED"],
+          "example": "APPROVED",
+          "description": "Response to leave request"
+        },
+        "manager_id": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 3,
+          "description": "Change manager ID (Admin only)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LeaveMarkAsReadRequest": {
+      "type": "object",
+      "properties": {
+        "read": {
+          "type": "boolean",
+          "example": true,
+          "description": "Mark leave response notification as read"
+        },
+        "read_withdraw": {
+          "type": "boolean",
+          "example": true,
+          "description": "Mark leave withdrawal notification as read (Manager only)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UpdateEmployeeRequest": {
+      "type": "object",
+      "properties": {
+        "first_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "example": "John",
+          "description": "Employee's first name"
+        },
+        "last_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "example": "Doe",
+          "description": "Employee's last name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 10,
+          "maxLength": 80,
+          "pattern": "@company\\.com$",
+          "example": "john.doe@company.com",
+          "description": "Employee email address. Must end with @company.com"
+        },
+        "hashed_password": {
+          "type": "string",
+          "minLength": 5,
+          "example": "newpassword123",
+          "description": "New password (will be hashed before storage)"
+        },
+        "is_active": {
+          "type": "boolean",
+          "example": true,
+          "description": "Whether employee account is active (Admin only)"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["W", "E", "A"],
+          "example": "W",
+          "description": "Employee role (Admin only)"
+        },
+        "medical_leave": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "example": 14,
+          "description": "Medical leave allocation in days (Admin only)"
+        },
+        "annual_leave": {
+          "type": "number",
+          "format": "float",
+          "minimum": 0,
+          "example": 14,
+          "description": "Annual leave allocation in days (Admin only)"
+        },
+        "manager_id": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 3,
+          "description": "ID of the employee's manager (Admin only)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "EmployeeData": {
+      "type": "object",
+      "properties": {
+        "employee_id": {
+          "type": "integer",
+          "example": 19,
+          "description": "Auto-generated unique employee identifier"
+        },
+        "first_name": {
+          "type": "string",
+          "example": "Kaneki",
+          "description": "Employee's formatted first name"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Ken", 
+          "description": "Employee's formatted last name"
+        },
+        "email": {
+          "type": "string",
+          "example": "kaneki@company.com",
+          "description": "Employee's email address"
+        },
+        "hashed_password": {
+          "type": "string",
+          "example": "$2b$10$ejEoMiIUpRUBWjWa4eZNNuyet3rKhZ8BVC4wnXbyH2Gq6XuWMwhfK",
+          "description": "Bcrypt hashed password"
+        },
+        "is_active": {
+          "type": "boolean",
+          "example": true,
+          "description": "Whether employee account is active"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["W", "E", "A"],
+          "example": "W",
+          "description": "Employee role"
+        },
+        "medical_leave": {
+          "type": "number",
+          "format": "float",
+          "example": 14,
+          "description": "Remaining medical leave in days"
+        },
+        "annual_leave": {
+          "type": "number", 
+          "format": "float",
+          "example": 14,
+          "description": "Remaining annual leave in days"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-16T00:31:24.724Z",
+          "description": "Account creation timestamp in Singapore Time"
+        },
+        "is_new": {
+          "type": "boolean",
+          "example": true,
+          "description": "Whether this is a new employee who needs to change password"
+        },
+        "manager_id": {
+          "type": "integer",
+          "example": 3,
+          "description": "ID of employee's manager"
+        }
+      }
+    },
+    "AttendanceData": {
+      "type": "object",
+      "properties": {
+        "attendance_id": {
+          "type": "integer",
+          "example": 123,
+          "description": "Unique attendance record identifier"
+        },
+        "employee_id": {
+          "type": "integer",
+          "example": 19,
+          "description": "Employee who owns this attendance record"
+        },
+        "leave_id": {
+          "type": "integer",
+          "example": null,
+          "description": "Associated leave ID if attendance is for leave"
+        },
+        "start_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T08:00:00.000Z",
+          "description": "Clock in time"
+        },
+        "end_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T17:30:00.000Z",
+          "description": "Clock out time"
+        },
+        "day": {
+          "type": "string",
+          "enum": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+          "example": "Mon",
+          "description": "Day of the week"
+        },
+        "total_min_work": {
+          "type": "integer",
+          "example": 480,
+          "description": "Total minutes worked"
+        },
+        "total_min_adjusted": {
+          "type": "integer",
+          "example": 480,
+          "description": "Adjusted total minutes including overtime"
+        },
+        "is_ot": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether overtime was claimed"
+        },
+        "hours_of_ot": {
+          "type": "integer",
+          "example": 0,
+          "description": "Hours of overtime worked"
+        },
+        "remarks": {
+          "type": "string",
+          "example": null,
+          "description": "Employee remarks for attendance edit"
+        },
+        "leave_remarks": {
+          "type": "string",
+          "example": null,
+          "description": "Leave remarks if attendance is for leave"
+        },
+        "is_amended": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether attendance record has been amended"
+        },
+        "edit_status": {
+          "type": "string",
+          "enum": ["PENDING", "APPROVED", "REJECTED"],
+          "example": null,
+          "description": "Status of attendance edit request"
+        },
+        "ot_req_status": {
+          "type": "string",
+          "enum": ["PENDING", "APPROVED", "REJECTED"],
+          "example": null,
+          "description": "Status of overtime request"
+        },
+        "edit_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": null,
+          "description": "When edit request was submitted"
+        },
+        "response_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": null,
+          "description": "When manager responded to request"
+        },
+        "read": {
+          "type": "boolean",
+          "example": null,
+          "description": "Whether employee has read manager's response"
+        },
+        "manager_id": {
+          "type": "integer",
+          "example": 3,
+          "description": "ID of the employee's manager"
+        }
+      }
+    },
+    "LeaveData": {
+      "type": "object",
+      "properties": {
+        "leave_id": {
+          "type": "integer",
+          "example": 45,
+          "description": "Unique leave request identifier"
+        },
+        "employee_id": {
+          "type": "integer",
+          "example": 19,
+          "description": "Employee who requested the leave"
+        },
+        "attendance_id": {
+          "type": "integer",
+          "example": 123,
+          "description": "Associated attendance record ID (when approved)"
+        },
+        "start_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-20T08:00:00.000Z",
+          "description": "Leave start time"
+        },
+        "end_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-20T17:00:00.000Z",
+          "description": "Leave end time"
+        },
+        "day": {
+          "type": "string",
+          "enum": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+          "example": "Tue",
+          "description": "Day of the week"
+        },
+        "duration": {
+          "type": "string",
+          "enum": ["FULL", "AM", "PM"],
+          "example": "FULL",
+          "description": "Leave duration"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["AL", "ML"],
+          "example": "AL",
+          "description": "Leave type"
+        },
+        "leave_remarks": {
+          "type": "string",
+          "example": "Family emergency",
+          "description": "Reason for leave"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "APPROVED", "REJECTED", "WITHDRAWN"],
+          "example": "PENDING",
+          "description": "Leave request status"
+        },
+        "submit_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-08-17T10:30:00.000Z",
+          "description": "When leave was submitted"
+        },
+        "response_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": null,
+          "description": "When manager responded to leave request"
+        },
+        "withdraw_date_time": {
+          "type": "string",
+          "format": "date-time",
+          "example": null,
+          "description": "When leave was withdrawn"
+        },
+        "read": {
+          "type": "boolean",
+          "example": null,
+          "description": "Whether employee has read manager's response"
+        },
+        "read_withdraw": {
+          "type": "boolean",
+          "example": null,
+          "description": "Whether manager has read withdrawal notification"
+        },
+        "manager_id": {
+          "type": "integer",
+          "example": 3,
+          "description": "ID of the employee's manager"
+        }
+      }
+    },
+    "RegisterSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "employee": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeData"
+          },
+          "description": "Array containing the newly created employee data"
+        }
+      }
+    },
+    "LoginSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "employee": {
+          "type": "object",
+          "properties": {
+            "employee_id": {
+              "type": "integer",
+              "example": 2,
+              "description": "Employee's unique identifier"
+            },
+            "email": {
+              "type": "string",
+              "example": "employer@company.com",
+              "description": "Employee's email address"
+            },
+            "name": {
+              "type": "string",
+              "example": "Liebert, Johan",
+              "description": "Employee's formatted name (Last, First)"
+            },
+            "role": {
+              "type": "string",
+              "enum": ["W", "E", "A"],
+              "example": "E",
+              "description": "Employee's role"
+            },
+            "is_new": {
+              "type": "boolean",
+              "example": false,
+              "description": "Whether employee needs to change password"
+            }
+          }
+        },
+        "token": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbXBsb3llZV9pZCI6Miwicm9sZSI6IkUiLCJpc19uZXciOmZhbHNlLCJpYXQiOjE3NTUyNzY4NjcsImV4cCI6MTc1NjQ4NjQ2N30.q-BjE7wySIX3o2blYyfrpms54whkI9pN1pue_dEbmAY",
+          "description": "JWT authentication token. Include in Authorization header as 'Bearer <token>'"
+        }
+      }
+    },
+    "FirstTimeLoginResponse": {
+      "type": "object",
+      "properties": {
+        "msg": {
+          "type": "string",
+          "example": "Please change your password",
+          "description": "Message indicating password change is required"
+        },
+        "employee": {
+          "type": "object",
+          "properties": {
+            "employee_id": {
+              "type": "integer",
+              "example": 2,
+              "description": "Employee's unique identifier"
+            },
+            "email": {
+              "type": "string",
+              "example": "employer@company.com",
+              "description": "Employee's email address"
+            },
+            "name": {
+              "type": "string",
+              "example": "Liebert, Johan",
+              "description": "Employee's formatted name (Last, First)"
+            },
+            "role": {
+              "type": "string",
+              "enum": ["W", "E", "A"],
+              "example": "E",
+              "description": "Employee's role"
+            },
+            "is_new": {
+              "type": "boolean",
+              "example": true,
+              "description": "Indicates this is a first-time login"
+            }
+          }
+        },
+        "token": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          "description": "JWT token for password change authentication"
+        }
+      }
+    },
+    "AttendanceSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "example": 1,
+          "description": "Number of attendance records returned"
+        },
+        "attendance": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/AttendanceData"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AttendanceData"
+              }
+            }
+          ],
+          "description": "Attendance data (single object or array)"
+        }
+      }
+    },
+    "AttendanceListResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "example": 5,
+          "description": "Number of attendance records returned"
+        },
+        "attendances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AttendanceData"
+          },
+          "description": "Array of attendance records"
+        }
+      }
+    },
+    "LeaveSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "example": 1,
+          "description": "Number of leave records returned"
+        },
+        "leave": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/LeaveData"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LeaveData"
+              }
+            }
+          ],
+          "description": "Leave data (single object or array)"
+        }
+      }
+    },
+    "LeaveListResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "example": 3,
+          "description": "Number of leave records returned"
+        },
+        "leaveHistory": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LeaveData"
+          },
+          "description": "Array of leave records"
+        }
+      }
+    },
+    "EmployeeListResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "example": 10,
+          "description": "Number of employees returned"
+        },
+        "employees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeData"
+          },
+          "description": "Array of employee data"
+        }
+      }
+    },
+    "ValidationErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "description": "Object containing field-specific validation errors",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of error messages for the field"
+          },
+          "example": {
+            "first_name": ["First Name is required"],
+            "email": [
+              "Please enter a valid email address",
+              "Only @company.com email addresses are allowed"
+            ],
+            "role": ["Role must be one of: 'A for Admin', 'E for Employer' or 'W for Worker'"]
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object", 
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Error message describing what went wrong"
+        }
+      }
+    },
+    "SuccessMessageResponse": {
+      "type": "object",
+      "properties": {
+        "msg": {
+          "type": "string",
+          "example": "Operation completed successfully",
+          "description": "Success message"
+        }
+      }
+    }
+  },
   "paths": {
     "/api/auth/register": {
       "post": {
-        "summary": "for admin to register a new employee",
+        "summary": "for -admin- to register a new employee",
         "tags": ["Authentication"],
-        "description": "Only admin is allow to visit this route",
+        "description": "1) Only admin is allow to visit this route. \n2) accepted value for role: 'W' for worker, 'E' for employer, 'A' for admin. \n3) email only accept @company.com",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "authorization",
             "in": "header",
-            "type": "string"
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token. Only admin users (role: 'A') can access this endpoint"
           },
           {
             "name": "body",
             "in": "body",
+            "required": true,
+            "description": "Employee registration data",
             "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "example": "kaneki@company.com"
-                },
-                "first_name": {
-                  "example": "kaneki"
-                },
-                "last_name": {
-                  "example": "ken"
-                },
-                "hashed_password": {
-                  "example": "12345"
-                },
-                "role": {
-                  "example": "W"
-                },
-                "medical_leave": {
-                  "example": 14
-                },
-                "annual_leave":{
-                  "example": 14
-                },
-                "manager_id": {
-                  "example": 3
-                }
-              }
+              "$ref": "#/definitions/RegisterEmployeeRequest"
             }
           }
         ],
         "responses": {
-           "201": {
+          "201": {
             "description": "Successful response",
             "schema": {
-              "type": "object",
-              "properties": {
-                "employee": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "is_active": { "type": "boolean", "example": true },
-                      "created_at": { "type": "string", "example": "2025-08-16T00:31:24.724Z" },
-                      "is_new": { "type": "boolean", "example": true },
-                      "employee_id": { "type": "integer", "example": 19 },
-                      "first_name": { "type": "string", "example": "Kaneki" },
-                      "last_name": { "type": "string", "example": "Ken" },
-                      "email": { "type": "string", "example": "kaneki@company.com" },
-                      "hashed_password": { "type": "string", "example": "$2b$10$ejEoMiIUpRUBWjWa4eZNNuyet3rKhZ8BVC4wnXbyH2Gq6XuWMwhfK" },
-                      "role": { "type": "string", "example": "W" },
-                      "medical_leave": { "type": "integer", "example": 14 },
-                      "annual_leave": { "type": "integer", "example": 14 },
-                      "manager_id": { "type": "integer", "example": 3 }
-                    }
-                  }
-                }
+              "$ref": "#/definitions/RegisterSuccessResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorResponse"
+            }
+          },
+          "401": {
+            "description": "sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
               }
             }
           },
-          "400": {"description": "user@company.com already exist"},
-          "403": { "description": "This side is forbidden" },
-          "500": {"description": "Something went wrong, please try again."}
+          "403": {
+            "description": "Worker or employer trying to send request to here",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
         }
       }
     },
     "/api/auth/login": {
       "post": {
         "tags": ["Authentication"],
-        "description": "",
+        "description": "for all employees to login. Note: for those who login in first time would be required to change password. Have to go PUT /api/employee/:employee_id to change password",
         "parameters": [
           {
             "name": "body",
             "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/LoginSuccessResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request - input invalid password",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Password incorrect"
+              }
+            }
+          },
+          "401": {
+            "description": "Email not found OR First-time login requiring password change",
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/FirstTimeLoginResponse"
+                },
+                {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+         }
+      }
+    },
+    "/api/employee/": {
+      "get": {
+        "summary": "Get employees based on user role",
+        "tags": ["Employee"],
+        "description": "Get All employees, worker can only get their data, employer can get their data and their worker's data, admin can get all data",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/EmployeeListResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Employee not found!"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/employee/{employee_id}": {
+      "get": {
+        "summary": "Get specific employee by ID",
+        "tags": ["Employee"],
+        "description": "Retrieve employee information by ID. Access is role-based: workers can only see their own data, employers can see their team's data, admins can see any employee's data.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Employee ID to retrieve"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
             "schema": {
               "type": "object",
               "properties": {
-                "email": {
-                  "example": "employer@company.com"
+                "total": {
+                  "type": "integer",
+                  "example": 1,
+                  "description": "Number of employees returned"
                 },
-                "hashed_password": {
-                  "example": "12345"
+                "employee": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/EmployeeData"
+                  },
+                  "description": "Array containing the employee data"
                 }
               }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid ID format",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Invalid ID. ID must be a positive number"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions to access this employee's data",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Employee id not found"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update employee information",
+        "tags": ["Employee"],
+        "description": "Update employee data. Workers and Employers can only change their password. Admins can update any field for any employee. First-time users changing password will have is_new set to false.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Employee ID to update"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Employee update data. Non-admin users can only update hashed_password field.",
+            "schema": {
+              "$ref": "#/definitions/UpdateEmployeeRequest"
             }
           }
         ],
@@ -118,19 +1266,1757 @@
             "schema": {
               "type": "object",
               "properties": {
-                "employee": {
-                  "type": "object",
-                  "properties": {
-                    "employee_id": { "type": "integer", "example": 2 },
-                    "email": { "type": "string", "example": "employer@company.com" },
-                    "name": { "type": "string", "example": "Liebert, Johan" },
-                    "role": { "type": "string", "example": "E" },
-                    "is_new": { "type": "boolean", "example": false }
-                  }
+                "total": {
+                  "type": "integer",
+                  "example": 1,
+                  "description": "Number of employees updated"
                 },
-                "token": {
+                "employee": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/EmployeeData"
+                  },
+                  "description": "Array containing the updated employee data"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation errors",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Employee id not found"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deactivate employee (Admin only)",
+        "tags": ["Employee"],
+        "description": "Only for admin to deactivate employee. The is_active field for the employee will be set to false (soft delete).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Employee ID to deactivate"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token. Only admin users (role: 'A') can access this endpoint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful deletion",
+            "schema": {
+              "$ref": "#/definitions/SuccessMessageResponse"
+            },
+            "examples": {
+              "application/json": {
+                "msg": "Employee with id 5 deleted."
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid ID format",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Invalid ID. ID must be a positive number"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - when worker or employer tries to access this endpoint",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Employee id not found"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/": {
+      "get": {
+        "summary": "Get attendance records based on user role",
+        "tags": ["Attendance"],
+        "description": "Retrieve attendance records based on user role. Workers see their own records, Employers see their team's records, Admins see all records with optional filtering.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "integer",
+            "minimum": 2020,
+            "maximum": 2030,
+            "description": "Filter by year (e.g., 2025)"
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Filter by month (1-12)"
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31,
+            "description": "Filter by day (1-31)"
+          },
+          {
+            "name": "manager",
+            "in": "query",
+            "type": "boolean",
+            "description": "If true, returns user's own attendance records (for managers/admins)"
+          },
+          {
+            "name": "ot_req_status",
+            "in": "query",
+            "type": "string",
+            "enum": ["PENDING", "APPROVED", "REJECTED"],
+            "description": "Filter by overtime request status"
+          },
+          {
+            "name": "edit_status",
+            "in": "query",
+            "type": "string",
+            "enum": ["PENDING", "APPROVED", "REJECTED"],
+            "description": "Filter by edit request status"
+          },
+          {
+            "name": "read",
+            "in": "query",
+            "type": "boolean",
+            "description": "Filter by read status of notifications"
+          },
+          {
+            "name": "attendance_id",
+            "in": "query",
+            "type": "integer",
+            "minimum": 1,
+            "description": "Get specific attendance record by ID"
+          },
+          {
+            "name": "employee_id",
+            "in": "query",
+            "type": "integer",
+            "minimum": 1,
+            "description": "Filter by employee ID (Admin only)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/AttendanceListResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - no attendance records found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Attendance not found!"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Recreate attendance record",
+        "tags": ["Attendance"],
+        "description": "For everyone to recreate an attendance record if they forgot to clock in/out. Requires manager approval.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Attendance recreation data",
+            "schema": {
+              "$ref": "#/definitions/RecreateAttendanceRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Attendance record recreated successfully",
+            "schema": {
+              "$ref": "#/definitions/AttendanceSuccessResponse"
+            }
+          },
+          "400": {
+            "description": "Validation errors",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/markAttendance": {
+      "post": {
+        "summary": "Clock in to attendance",
+        "tags": ["Attendance"],
+        "description": "Create a new attendance record for clock-in. If no start_date_time is provided, uses current Singapore time.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Clock in data (optional)",
+            "schema": {
+              "$ref": "#/definitions/ClockInRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully clocked in",
+            "schema": {
+              "$ref": "#/definitions/AttendanceSuccessResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request - cannot clock in again today",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "You cannot clock in again today"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Clock out from attendance",
+        "tags": ["Attendance"],
+        "description": "Clock out from today's attendance record. Calculates total working time and processes overtime if requested.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Clock out data (optional)",
+            "schema": {
+              "$ref": "#/definitions/ClockOutRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully clocked out",
+            "schema": {
+              "$ref": "#/definitions/AttendanceSuccessResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request - did not clock in today",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Clock out fail. You did not clock in today."
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/deleteAttendance/{attendance_id}": {
+      "delete": {
+        "summary": "Delete attendance record (Admin only)",
+        "tags": ["Attendance"],
+        "description": "Permanently delete an attendance record. Only accessible by administrators.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "ID of the attendance record to delete"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token. Only admin users (role: 'A') can access this endpoint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attendance record deleted successfully",
+            "schema": {
+              "$ref": "#/definitions/SuccessMessageResponse"
+            },
+            "examples": {
+              "application/json": {
+                "msg": "Attendance with ID 15 deleted!"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid ID format",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Invalid ID. ID must be a positive number"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Admin access required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Attendance record not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Attendance id not found!"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/recent": {
+      "get": {
+        "summary": "Get last 3 attendance records",
+        "tags": ["Attendance"],
+        "description": "Retrieve the last 3 attendance records for the logged-in employee, excluding pending edit requests.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/AttendanceListResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "404": {
+            "description": "No attendance records found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "No attendance records found for this employee."
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+     "/api/attendance/responseReq/{attendance_id}": {
+      "put": {
+        "summary": "Respond to attendance requests (Manager/Admin only)",
+        "tags": ["Attendance"],
+        "description": "Approve or reject overtime requests and edit status for attendance records. Managers can respond to their team's requests, Admins can change manager assignments.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "ID of the attendance record to respond to"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token. Only manager/admin users can access this endpoint"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Response to attendance requests",
+            "schema": {
+              "$ref": "#/definitions/AttendanceStatusUpdateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. If request is responded, response_date_time will be added.",
+            "schema": {
+              "$ref": "#/definitions/AttendanceListResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid request data",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Attendance record not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Attendance not found"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/markRead/{attendance_id}": {
+      "put": {
+        "summary": "Mark attendance notification as read",
+        "tags": ["Attendance"],
+        "description": "Mark attendance-related notifications as read for the employee.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "ID of the attendance record"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Mark as read request",
+            "schema": {
+              "$ref": "#/definitions/MarkAsReadRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully marked as read",
+            "schema": {
+              "$ref": "#/definitions/AttendanceListResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid request data",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - can only mark own notifications",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "This side is forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Attendance record not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Attendance id not found"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/editAttendanceReq/": {
+      "get": {
+        "summary": "Get attendance edit requests",
+        "tags": ["Attendance"],
+        "description": "Retrieve attendance edit requests. Workers see their own requests, Employers see their team's requests, Admins see all requests.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Bearer JWT token"
+          },
+          {
+            "name": "manager",
+            "in": "query",
+            "type": "boolean",
+            "description": "If true, returns manager or admin's own edit requests (only for admin/manager"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "example": 1,
+                  "description": "Number of edit requests returned"
+                },
+                "request": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "request_id": {
+                        "type": "integer",
+                        "example": 23,
+                        "description": "Edit request identifier"
+                      },
+                      "attendance_id": {
+                        "type": "integer",
+                        "example": 21,
+                        "description": "Associated attendance record ID"
+                      },
+                      "employee_id": {
+                        "type": "integer",
+                        "example": 6,
+                        "description": "Employee who made the request"
+                      },
+                      "start_date_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-14T08:00:00.000Z",
+                        "description": "Requested clock in time"
+                      },
+                      "end_date_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-14T19:00:00.000Z",
+                        "description": "Requested clock out time"
+                      },
+                      "day": {
+                        "type": "string",
+                        "enum": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                        "example": "Thu",
+                        "description": "Day of the week"
+                      },
+                      "is_ot": {
+                        "type": "boolean",
+                        "example": true,
+                        "description": "Whether overtime is requested"
+                      },
+                      "hours_of_ot": {
+                        "type": "integer",
+                        "example": 2,
+                        "description": "Hours of overtime requested"
+                      },
+                      "remarks": {
+                        "type": "string",
+                        "example": "Forgot to clock in/out",
+                        "description": "Reason for the edit request"
+                      },
+                      "edit_date_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-16T21:48:13.117Z",
+                        "description": "When the edit request was submitted"
+                      },
+                      "edit_status": {
+                        "type": "string",
+                        "enum": ["PENDING", "APPROVED", "REJECTED"],
+                        "example": "PENDING",
+                        "description": "Status of the edit request"
+                      },
+                      "manager_id": {
+                        "type": "integer",
+                        "example": 4,
+                        "description": "Manager responsible for approving"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Authentication invalid"
+              }
+            }
+          },
+          "404": {
+            "description": "No edit attendance requests found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "No edit attendance request found"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/editAttendanceReq/{attendance_id}": {
+      "post": {
+        "summary": "Employee requesting to edit attendance",
+        "tags": ["Attendance"],
+        "description": "Used by an employee to submit an attendance edit request. The employee can edit their own records. The 'edit_status' will be set to 'PENDING' for manager approval.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "The ID of the attendance record to edit."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EditAttendanceRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "msg": {
                   "type": "string",
-                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbXBsb3llZV9pZCI6Miwicm9sZSI6IkUiLCJpc19uZXciOmZhbHNlLCJpYXQiOjE3NTUyNzY4NjcsImV4cCI6MTc1NjQ4NjQ2N30.q-BjE7wySIX3o2blYyfrpms54whkI9pN1pue_dEbmAY"
+                  "example": "Your attendance edit request has been successfully submitted."
+                },
+                "attendance": {
+                  "$ref": "#/definitions/AttendanceData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input or attendance ID mismatch",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Invalid ID. ID must be a positive number."
+                }
+              },
+              "example": {
+                "error": "The provided attendance ID does not match the one in the body."
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - sending request without valid token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Authentication invalid"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - when an employee is trying to edit another employee's attendance record",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "This side is forbidden."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Attendance ID does not exist",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Attendance ID not found!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Something went wrong, please try again."
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Manager approves or rejects attendance edit request",
+        "tags": ["Attendance"],
+        "description": "Used by a manager to update the status of an employee's attendance edit request. The manager can approve, reject, or mark the request as pending.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "The ID of the attendance record to update."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateEditAttendanceStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Attendance request status has been successfully updated."
+                },
+                "attendance": {
+                  "$ref": "#/definitions/AttendanceData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input or status value",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Invalid status value provided. Must be one of 'APPROVED', 'REJECTED', or 'PENDING'."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Sending request without a valid token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Authentication invalid"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - when a non-manager tries to update the status",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "You are not authorized to perform this action."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Attendance ID does not exist",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Attendance ID not found!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Something went wrong, please try again."
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Employee withdraws attendance edit request",
+        "tags": ["Attendance"],
+        "description": "Allows an employee to withdraw an attendance edit request they previously submitted.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "The ID of the attendance request to withdraw."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "msg": {
+                  "type": "string",
+                  "example": "Attendance edit request has been successfully withdrawn."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Sending request without a valid token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Authentication invalid"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - when an employee tries to delete another employee's request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "This side is forbidden."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Attendance ID does not exist",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Attendance ID not found!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Something went wrong, please try again."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leave/request": {
+    "post": {
+      "summary": "Employee requesting a new leave",
+      "tags": ["Leave"],
+      "description": "Used by an employee to submit a new leave request. This request will be set to 'PENDING' for manager approval.",
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/LeaveRequest"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successful response",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "example": 1
+              },
+              "msg": {
+                "type": "string",
+                "example": "Your leave request has been successfully submitted."
+              },
+              "leave": {
+                "$ref": "#/definitions/LeaveData"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Bad Request - Invalid input or insufficient leave balance",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Insufficient leave balance."
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Unauthorized - Sending request without a valid token",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Authentication invalid"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/leave/": {
+    "get": {
+      "summary": "Get all leave requests for the logged-in employee",
+      "tags": ["Leave"],
+      "description": "Allows an employee to view all of their own leave requests.",
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successful response",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "example": 2
+              },
+              "msg": {
+                "type": "string",
+                "example": "All leave requests for the employee fetched successfully."
+              },
+              "leaves": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/LeaveData"
+                }
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Unauthorized - Sending request without a valid token",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Authentication invalid"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "No leave requests found",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "No leave requests found."
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/leave/approve/{leave_id}": {
+    "put": {
+      "summary": "Manager approves or rejects a leave request",
+      "tags": ["Leave"],
+      "description": "Used by a manager to update the status of an employee's leave request.",
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "leave_id",
+          "in": "path",
+          "required": true,
+          "type": "integer",
+          "description": "The ID of the leave request to update."
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/UpdateLeaveStatus"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successful response",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "example": 1
+              },
+              "msg": {
+                "type": "string",
+                "example": "Leave request status has been successfully updated."
+              },
+              "leave": {
+                "$ref": "#/definitions/LeaveData"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Bad Request - Invalid status value",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Invalid status value provided. Must be 'APPROVED' or 'REJECTED'."
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Unauthorized - Sending request without a valid token",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Authentication invalid"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Forbidden - when a non-manager tries to update the status",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "You are not authorized to perform this action."
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Not Found - Leave ID does not exist",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Leave ID not found!"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/leave/withdraw/{leave_id}": {
+    "delete": {
+      "summary": "Employee withdraws a leave request",
+      "tags": ["Leave"],
+      "description": "Allows an employee to withdraw a leave request they previously submitted.",
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "leave_id",
+          "in": "path",
+          "required": true,
+          "type": "integer",
+          "description": "The ID of the leave request to withdraw."
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successful response",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "example": 1
+              },
+              "msg": {
+                "type": "string",
+                "example": "Leave request has been successfully withdrawn."
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Unauthorized - Sending request without a valid token",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Authentication invalid"
+              }
+            }
+          }
+        },
+        "403": {
+          "description": "Forbidden - when an employee tries to withdraw another employee's request",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "This side is forbidden."
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Not Found - Leave ID does not exist",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Leave ID not found!"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal server error",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "Something went wrong, please try again."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/api/leave/markRead/{leave_id}": {
+      "put": {
+        "tags": ["Leave"],
+        "summary": "for leave owner",
+        "parameters": [
+          {
+            "name": "leave_id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "1) Once a leave request has been responsed by manager, worker can mark the read status as true \n2) Having these columns are mainly to showing the notification in front end \n3) only booloean is accepted",
+            "schema": {
+              "type": "object",
+              "required": ["read"],
+              "properties": {
+                "read": { "type": "boolean", "example": true }
+              }
+            }
+          }
+        ],
+        "responses": {
+            "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": { "type": "integer", "example": 1 },
+                "leave": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "attendance_id": { "type": ["integer", "null"], "example": 10 },
+                      "read": { "type": ["boolean", "null"], "example": true },
+                      "read_withdraw": { "type": ["boolean", "null"], "example": null },
+                      "leave_id": { "type": "integer", "example": 6 },
+                      "type": { "type": "string", "example": "AL" },
+                      "status": { "type": "string", "example": "APPROVED" },
+                      "submit_date_time": { "type": "string", "example": "2025-08-16T10:29:53.986Z" },
+                      "leave_remarks": { "type": "string", "example": "studying" },
+                      "employee_id": { "type": "integer", "example": 8 },
+                      "manager_id": { "type": "integer", "example": 3 },
+                      "duration": { "type": "string", "example": "FULL" },
+                      "start_date_time": { "type": "string", "example": "2025-09-20T08:00:00.000Z" },
+                      "end_date_time": { "type": "string", "example": "2025-09-20T17:00:00.000Z" },
+                      "day": { "type": "string", "example": "Sat" },
+                      "response_date_time": { "type": ["string", "null"], "example": "2025-08-18T11:29:53.986Z" },
+                      "withdraw_date_time": { "type": ["string", "null"], "example": null }
+                    }
+                  }
                 }
               }
             }
@@ -140,111 +3026,41 @@
             "schema": {
               "type": "object",
               "properties": {
-                "error": { "type": "string", "example": "Invalid Credentials" }
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "read": {
+                      "type": "array",
+                      "items": {
+                      "type": "string"
+                      },
+                      "example": ["Read status is required", "Read status must be true or false"]
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "error": {
+              "read": [ "Read status must be true or false"]
               }
             }
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "Sending request without valid token",
             "schema": {
               "type": "object",
               "properties": {
-                "error": { "type": "string", "example": "Password incorrect" }
+              "error": { "type": "string", "example": "Authentication invalid" }
               }
             }
           },
-          "500": {"description": "Something went wrong, please try again."}
-        }
-      }
-    },
-    "/api/employee/": {
-      "get": {
-        "tags": ["Employee"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
+          "403": {
+            "description": "if not the leave owner sending request",
             "schema": {
               "type": "object",
               "properties": {
-                "total": { "type": "integer", "example": 2 },
-                "employees": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "employee_id": { "type": "integer", "example": 18 },
-                      "first_name": { "type": "string", "example": "Eren" },
-                      "last_name": { "type": "string", "example": "Yeager" },
-                      "email": { "type": "string", "example": "aot@company.com" },
-                      "hashed_password": { "type": "string", "example": "$2b$10$Nzmy0BrZiTrpegy7Uykfq..XxhNXR9Pe39SFcVYbA9W5bNnCbUZcK" },
-                      "is_active": { "type": "boolean", "example": true },
-                      "role": { "type": "string", "example": "W" },
-                      "medical_leave": { "type": "integer", "example": 90 },
-                      "annual_leave": { "type": "integer", "example": 90 },
-                      "created_at": { "type": "string", "example": "2025-08-15T20:26:29.561Z" },
-                      "is_new": { "type": "boolean", "example": false },
-                      "manager_id": { "type": "integer", "example": 2 }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/employee/{employee_id}": {
-      "get": {
-        "tags": ["Employee"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "employee_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "total": { "type": "integer", "example": 1 },
-                "employee": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "employee_id": { "type": "integer", "example": 18 },
-                      "first_name": { "type": "string", "example": "Eren" },
-                      "last_name": { "type": "string", "example": "Yeager" },
-                      "email": { "type": "string", "example": "aot@company.com" },
-                      "hashed_password": { "type": "string", "example": "$2b$10$Nzmy0BrZiTrpegy7Uykfq..XxhNXR9Pe39SFcVYbA9W5bNnCbUZcK" },
-                      "is_active": { "type": "boolean", "example": true },
-                      "role": { "type": "string", "example": "W" },
-                      "medical_leave": { "type": "integer", "example": 90 },
-                      "annual_leave": { "type": "integer", "example": 90 },
-                      "created_at": { "type": "string", "example": "2025-08-15T20:26:29.561Z" },
-                      "is_new": { "type": "boolean", "example": false },
-                      "manager_id": { "type": "integer", "example": 2 }
-                    }
-                  }
-                }
+                "error": { "type": "string", "example": "This side is forbidden" }
               }
             }
           },
@@ -253,356 +3069,18 @@
             "schema": {
               "type": "object",
               "properties": {
-                "error": { "type": "string", "example": "Employee id not found" }
+                "error": { "type": "string", "example": "Leave not found!" }
               }
             }
           },
-          "500": {"description": "Something went wrong, please try again."}
-        }
-      },
-      "put": {
-        "tags": ["Employee"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "employee_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Employee"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "employee_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/attendance/": {
-      "get": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/attendance/recent": {
-      "get": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/attendance/markAttendance": {
-      "post": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/attendance/deleteAttendance/{attendance_id}": {
-      "delete": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "attendance_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/attendance/responseReq/{attendance_id}": {
-      "put": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "attendance_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/attendance/markRead/{attendance_id}": {
-      "put": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "attendance_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/attendance/editAttendanceReq/": {
-      "get": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/attendance/editAttendanceReq/{attendance_id}": {
-      "post": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "attendance_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "attendance_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Attendance"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "attendance_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/leave/": {
-      "get": {
-        "tags": ["Leave"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "tags": ["Leave"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/leave/markRead/{leave_id}": {
-      "put": {
-        "tags": ["Leave"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "leave_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad Request"
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string", "example": "Something went wrong, please try again." }
+              }
+            }
           }
         }
       }
@@ -610,69 +3088,128 @@
     "/api/leave/markReadWithdraw/{leave_id}": {
       "put": {
         "tags": ["Leave"],
-        "description": "",
+        "summary": "for admin and employer",
         "parameters": [
           {
             "name": "leave_id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "authorization",
+            "required": true,
             "in": "header",
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "\n1) if a leave is withdrawn by worker, manager can mark the read_withdraw to true \n2) Having this columns are mainly to notify them in front end \n3) read_withdraw only takes boolean",
+            "schema": {
+              "type": "object",
+              "required": ["read_withdraw"],
+              "properties": {
+                "read_withdraw": { "type": "boolean", "example": true }
+              }
+            }
           }
         ],
         "responses": {
+            "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": { "type": "integer", "example": 1 },
+                "leave": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "attendance_id": { "type": ["integer", "null"], "example": null },
+                      "read": { "type": ["boolean", "null"], "example": null },
+                      "read_withdraw": { "type": ["boolean", "null"], "example": true },
+                      "leave_id": { "type": "integer", "example": 6 },
+                      "type": { "type": "string", "example": "AL" },
+                      "status": { "type": "string", "example": "WITHDRAWN" },
+                      "submit_date_time": { "type": "string", "example": "2025-08-16T10:29:53.986Z" },
+                      "leave_remarks": { "type": "string", "example": "studying" },
+                      "employee_id": { "type": "integer", "example": 8 },
+                      "manager_id": { "type": "integer", "example": 3 },
+                      "duration": { "type": "string", "example": "FULL" },
+                      "start_date_time": { "type": "string", "example": "2025-09-20T08:00:00.000Z" },
+                      "end_date_time": { "type": "string", "example": "2025-09-20T17:00:00.000Z" },
+                      "day": { "type": "string", "example": "Sat" },
+                      "response_date_time": { "type": ["string", "null"], "example": null },
+                      "withdraw_date_time": { "type": ["string", "null"], "example": "2025-08-17T10:29:53.986Z" }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/leave/{leave_id}": {
-      "put": {
-        "tags": ["Leave"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "leave_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "read_withdraw": {
+                      "type": "array",
+                      "items": {
+                      "type": "string"
+                      },
+                      "example": ["read_withdraw status is required", "read_withdraw status must be true or false"]
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "error": {
+              "read_withdraw": [ "read_withdraw status is required"]
+              }
+            }
           },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Leave"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "leave_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
+          "401": {
+            "description": "Sending request without valid token",
+            "schema": {
+              "type": "object",
+              "properties": {
+              "error": { "type": "string", "example": "Authentication invalid" }
+              }
+            }
           },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
+          "403": {
+            "description": "worker or other manger sending request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string", "example": "This side is forbidden" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string", "example": "Leave not found!" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string", "example": "Something went wrong, please try again." }
+              }
+            }
           }
         }
       }

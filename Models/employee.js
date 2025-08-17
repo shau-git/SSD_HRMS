@@ -162,13 +162,12 @@ Employee.init({
     },
     manager_id: {
         type: DataTypes.SMALLINT,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: "employees",
             key: "employee_id",
         },
         validate: {
-            notNull: notNull("Manager ID"),
             isInt: isNumber("Manager ID"),
             min: minNum(0, "Manager ID")
         }

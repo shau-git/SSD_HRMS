@@ -109,12 +109,16 @@ const updateEmployee = asyncWrapper(async(req, res) => {
     // if admin visit here
     if (payload.role === "A" ) { 
 
-        // hash the password if request for changing, will return back the same obj with the password hashed
-        const {hashed_password} = await Employee.hashPassword(toUpdateEmployee)
+        if (toUpdateEmployee.hashed_password) {
+            
+            // hash the password if request for changing, will return back the same obj with the password hashed
+            const {hashed_password} = await Employee.hashPassword(toUpdateEmployee)
 
-        // change the passowrd in the req.body to a hashed one before updating to the database
-        toUpdateEmployee.hashed_password = hashed_password
+            // change the passowrd in the req.body to a hashed one before updating to the database
+            toUpdateEmployee.hashed_password = hashed_password
 
+        }
+        
         // update the employee data
         await Employee.update(toUpdateEmployee, {
             where: {employee_id}

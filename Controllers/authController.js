@@ -36,8 +36,8 @@ const register = async(req, res) => {
     // insert employee data to DB
     const employee = await Employee.create(newEmployee)
 
-    // Genrenate JWT token
-    const token = employee.createJWT()
+    // // Genrenate JWT token
+    // const token = employee.createJWT()
 
     const responseWithSGT = getDataWithSGT(employee)
 

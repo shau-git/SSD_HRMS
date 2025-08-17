@@ -66,7 +66,7 @@ async function initializeNotifications() {
                 <p>edit_date_time: <span class="data">${a.edit_date_time}</span></p>
                 <p>response_date_time: <span class="data">${a.response_date_time}</span></p>
                 <p>Manager ID: <span class="data">${a.manager_id}</span></p>
-                <button id="read-btn-att-${a.attendance_id}" onclick="markAsRead('attendance', ${a.attendance_id}, 'read', '#read-btn-att-${a.attendance_id}')">Mark as read</button>
+                <button id="read-btn-att-${a.attendance_id}" onclick="markAsRead('attendance/markRead', ${a.attendance_id}, 'read', '#read-btn-att-${a.attendance_id}')">Mark as read</button>
             `;
             
             attendanceElement.innerHTML = innerHtml;
@@ -109,7 +109,7 @@ async function markAsRead(path, id, field, btnId) {
     data[field] = true
 
     try {
-        const response = await fetch(`${apiBaseUrl}/api/${path}/markRead/${id}`, {
+        const response = await fetch(`${apiBaseUrl}/api/${path}/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

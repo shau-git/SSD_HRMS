@@ -60,7 +60,7 @@ async function displayRecentAttendance() {
             : {message: response.statusText};
 
 
-        if(response.status === 200) {
+        if(response.status === 200 || response.status === 201) {
             if (responseBody.total === 0) {
                 container.innerHTML = '<p>No recent attendance records found.</p>';
   

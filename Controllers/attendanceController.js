@@ -93,8 +93,9 @@ const getAllAttendance = asyncWrapper(async(req, res) => {
         throw new NotFoundError(`Attendance not found!`)
     } 
 
-
+    // if someone want to filter the attendance id but the role is not admin
     if(attendance_id && payload.role !== 'A') {
+        // if the person's employee_id is not same as the manager_id (other manager trying to get other worker's attendance)
         if(payload.employee_id !== attendances[0].dataValues.manager_id) {
             if(payload.employee_id !== attendances[0].dataValues.employee_id) {
                 throw new ForbiddenError("This side is forbidden")
@@ -105,7 +106,7 @@ const getAllAttendance = asyncWrapper(async(req, res) => {
     // format all the datetime field to sgt
     const attendanceWithSGT = getDataWithSGT(attendances)
 
-    return res.json({total: attendanceWithSGT.length, attendances: attendanceWithSGT})
+    return res.status(StatusCodes.OK).json({total: attendanceWithSGT.length, attendances: attendanceWithSGT})
 })
 
 
@@ -136,7 +137,7 @@ const getRecentAttendance = asyncWrapper(async(req, res) => {
     }
 
     const attendanceWithSGT = getDataWithSGT(recentAttendances);
-    return res.json({total: attendanceWithSGT.length, attendances: attendanceWithSGT})
+    return res.status(StatusCodes.OK).json({total: attendanceWithSGT.length, attendances: attendanceWithSGT})
 });
 
 
@@ -310,23 +311,15 @@ const clockIn = asyncWrapper(async(req, res) => {
     // if no start_date_time is provided, default as current datetime
     if (!start_date_time) {
         // get current datetime in SGT
-        console.log('no dt')
         start_date_time = getCurrentTimeSGT()
     } else {
-        console.log('else')
         if (isValidFullISO(start_date_time)) {
-            console.log("isValid")
             start_date_time = start_date_time
         } else {
-            console.log('here')
             start_date_time = convertToSGT(new Date(start_date_time))
         }
     }
-    
-    console.log(start_date_time)
-    console.log(new Date(start_date_time))
-    console.log(isValidFullISO(start_date_time))
-    console.log(convertToSGT(new Date(start_date_time)))
+
     // get all where the date in start_date_time  is today's date or the remarks has today's date (once leave approved, attendance record will be created and the remarks will be marked as: 2025-08-01 AM AL)
     let isEmpClockIn = await Attendance.findAll({
         where: {
@@ -348,31 +341,34 @@ const clockIn = asyncWrapper(async(req, res) => {
         }
     })
 
-    isEmpClockIn = getDataWithSGT(isEmpClockIn)  
+      
+    if (isEmpClockIn.length > 1) {
+        isEmpClockIn = getDataWithSGT(isEmpClockIn)
 
+        for (const attendance of isEmpClockIn) {
+            // start_date_time can be "2025-08-06T23:07:48.181Z" or null, if employee's leave is approved will create an attendance, but start_date_time & end_date_time will be null
+            const startDate = attendance.start_date_time? attendance.start_date_time.toISOString().split('T')[0] : null
 
-    for (const attendance of isEmpClockIn) {
-        // start_date_time can be "2025-08-06T23:07:48.181Z" or null, if employee's leave is approved will create an attendance, but start_date_time & end_date_time will be null
-        const startDate = attendance.start_date_time? attendance.start_date_time.toISOString().split('T')[0] : null
+            if(startDate == todayDate) {
 
-        if(startDate == todayDate) {
+                throw new BadRequestError("You cannot clock in again today")
 
-            throw new BadRequestError("You cannot clock in again today")
+            } else if (startDate == null) {  // once leave is approved, an attendance will be created , and the start_date_time & end_date_time will be set to null, but will remarks as taking leave
 
-        } else if (startDate == null) {  // once leave is approved, an attendance will be created , and the start_date_time & end_date_time will be set to null, but will remarks as taking leave
+                if (attendance.leave_remarks.slice(0,10) == todayDate) {  // the leave_remarks we want to find is (2025-08-06 PM AL)
 
-            if (attendance.leave_remarks.slice(0,10) == todayDate) {  // the leave_remarks we want to find is (2025-08-06 PM AL)
+                    // update the start_date_time to current dateTime, the start_date_time variable here is the one extract from req.body
+                    const updateAttendance = await Attendance.update({start_date_time}, { where: {attendance_id: attendance.attendance_id}, returning: true })
+                    // const updateAttendance = await Attendance.findOne({where: {attendance_id: attendance.attendance_id} })
 
-                // update the start_date_time to current dateTime, the start_date_time variable here is the one extract from req.body
-                const updateAttendance = await Attendance.update({start_date_time}, { where: {attendance_id: attendance.attendance_id}, returning: true })
-                // const updateAttendance = await Attendance.findOne({where: {attendance_id: attendance.attendance_id} })
-
-                // format all the datetime field to sgt
-                const attendanceWithSGT = getDataWithSGT(updateAttendance[1])
-                return res.status(StatusCodes.OK).json({total:attendanceWithSGT.length ,attendance: attendanceWithSGT})
+                    // format all the datetime field to sgt
+                    const attendanceWithSGT = getDataWithSGT(updateAttendance[1])
+                    return res.status(StatusCodes.OK).json({total:attendanceWithSGT.length ,attendance: attendanceWithSGT})
+                }
             }
         }
     }
+    
 
 
     // only get the necessary field, the other fills are either forbidden or having default value in the model
@@ -456,7 +452,6 @@ const clockOut = asyncWrapper(async(req, res) => {
 
     // get the attendance_id from the attendace to clock out
     const { attendance_id, start_date_time } = attdendanceToClockOut.dataValues
-
 
     // this is to check if user input end_date_time beofre the start_date_time
     if (end_date_time <= convertToSGT(start_date_time )) { 
@@ -634,10 +629,6 @@ const editAttendance_W = asyncWrapper(async(req, res) => {
 
     let {start_date_time, end_date_time, remarks, is_ot, hours_of_ot} = req.body
 
-    // to change "2025-08-06T08:00" => "2025-08-06T08:00:00.000Z"
-    // start_date_time = convertToSGT(new Date(start_date_time))
-
-    // end_date_time = convertToSGT(new Date(end_date_time))
 
     if (!isValidFullISO(start_date_time)) {
         start_date_time = convertToSGT(new Date(start_date_time))

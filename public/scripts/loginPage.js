@@ -1,3 +1,9 @@
+const checkToken = localStorage.getItem('token')
+
+if(checkToken) {
+   window.location.href = "/html/homePage.html"
+} 
+
 async function loginUser(event) 
 {
     //Prevent event bubbling if called from a form submit event

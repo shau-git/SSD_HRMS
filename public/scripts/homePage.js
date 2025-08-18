@@ -115,7 +115,7 @@ clockInBtn.addEventListener('click', async () => {
                 "Content-Type": "application/json",
                 ...(token && { "Authorization": `Bearer ${token}` }) // Add header if token exists
             },
-            body: JSON.stringify({}),  // let the backedn to update the start_date_time itself
+            body: JSON.stringify({}),  // let the backend to update the start_date_time itself
         });
 
         const responseBody = response.headers

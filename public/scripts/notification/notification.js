@@ -21,7 +21,7 @@ async function fetchResponse(path, leave_read) {
 
             url = `${apiBaseUrl}/api/leave?`
 
-            if (role =='E') {
+            if (role =='E' || role == 'A') {
                 if(leave_read == 'read_withdraw') {
                     // send which worker withdraw their leave to employer if they have not read
                     url +=  `read_withdraw=false&`
@@ -35,7 +35,7 @@ async function fetchResponse(path, leave_read) {
 
             } // for employee only can read the leave response
         }
-
+console.log(url)
 
         // Make a GET request to your API endpoint
         const response = await fetch(url, {
@@ -74,18 +74,27 @@ async function fetchResponse(path, leave_read) {
 
     const attendanceRespose = await fetchResponse('attendance', 'attendance');
     if (attendanceRespose) {
+        console.log('attendanceeeee')
+        console.log(attendanceRespose , '\n')
         totalMsg += attendanceRespose.total;
     }
 
     const leaveResponse = await fetchResponse('leave', 'read');
     if (leaveResponse) {
+        console.log('readdddddddd')
+        console.log(leaveResponse, '\n')
         totalMsg += leaveResponse.total;
     }
 
-    const leaveResponseWithdaw = await fetchResponse('leave', 'read_withdraw');
-    if (leaveResponseWithdaw) {
-        totalMsg += leaveResponseWithdaw.total;
+    if (role === 'A' || role === 'E') {
+        const leaveResponseWithdaw = await fetchResponse('leave', 'read_withdraw');
+        if (leaveResponseWithdaw) {
+            console.log('leaveResponseeeeeee')
+            console.log(leaveResponse, '\n')
+            totalMsg += leaveResponseWithdaw.total;
+        }
     }
+    
 
     // Now, after both fetches are complete, update the UI
     if (totalMsg > 0) {

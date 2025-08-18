@@ -8,9 +8,13 @@ async function initializeNotifications() {
     const promises = [
         fetchResponse('attendance', 'attendance'),
         fetchResponse('leave', 'read'),
-        fetchResponse('leave', 'read_withdraw')
+        
     ];
 
+    if (role === 'A' || role === 'E') {
+        promises.push(fetchResponse('leave', 'read_withdraw'))
+    }
+    
     // Wait for all fetch calls to complete
     const [responseAttendance, responseLeaveRead, responseLeaveReadWithdraw] = await Promise.all(promises);
 

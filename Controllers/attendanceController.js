@@ -319,7 +319,7 @@ const clockIn = asyncWrapper(async(req, res) => {
             start_date_time = convertToSGT(new Date(start_date_time))
         }
     }
-
+console.log('---------------------------', start_date_time)
     // get all where the date in start_date_time  is today's date or the remarks has today's date (once leave approved, attendance record will be created and the remarks will be marked as: 2025-08-01 AM AL)
     let isEmpClockIn = await Attendance.findAll({
         where: {
@@ -341,9 +341,10 @@ const clockIn = asyncWrapper(async(req, res) => {
         }
     })
 
+    isEmpClockIn = getDataWithSGT(isEmpClockIn)
       
-    if (isEmpClockIn.length > 1) {
-        isEmpClockIn = getDataWithSGT(isEmpClockIn)
+    //if (isEmpClockIn.length > 1) {
+        
 
         for (const attendance of isEmpClockIn) {
             // start_date_time can be "2025-08-06T23:07:48.181Z" or null, if employee's leave is approved will create an attendance, but start_date_time & end_date_time will be null
@@ -367,7 +368,7 @@ const clockIn = asyncWrapper(async(req, res) => {
                 }
             }
         }
-    }
+    //}
     
 
 

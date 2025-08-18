@@ -282,7 +282,6 @@ const updateLeaveRecord = asyncWrapper(async(req,res) => {
                 manager_id: payload.employee_id
             })
 
-
             reqBodyUpdateLeave.attendance_id = Number(createAttendance.dataValues.attendance_id)
 
         } else if (reqBodyUpdateLeave.status.toUpperCase() === 'REJECTED') {
@@ -296,7 +295,6 @@ const updateLeaveRecord = asyncWrapper(async(req,res) => {
         reqBodyUpdateLeave.read = false
 
     } 
-
 
     // update the leave data in the Leave table
     await Leave.update(

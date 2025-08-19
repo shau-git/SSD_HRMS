@@ -8,7 +8,6 @@ async function loginUser(event)
 {
     //Prevent event bubbling if called from a form submit event
     if (event) event.preventDefault(); 
-    //const apiBaseUrl = "http://localhost:3013";
     const messageDiv = document.getElementById("errMsg");
     //messageDiv.textContent = ""; // Clear previous messages
     const loginForm = document.getElementById("loginForm");
@@ -48,7 +47,7 @@ async function loginUser(event)
                 localStorage.setItem("token", responseBody.token);
             }
             if (responseBody.employee) {
-                console.log(responseBody.employee)
+                // console.log(responseBody.employee)
                 localStorage.setItem("role", responseBody.employee.role);
                 localStorage.setItem("employee_id", responseBody.employee.employee_id);
                 localStorage.setItem("is_new", responseBody.employee.is_new);
@@ -62,7 +61,6 @@ async function loginUser(event)
                 localStorage.setItem("token", responseBody.token);
             }
             if (responseBody.employee) {
-                console.log(responseBody.employee)
                 localStorage.setItem("role", responseBody.employee.role);
                 localStorage.setItem("employee_id", responseBody.employee.employee_id);
                 localStorage.setItem("is_new", responseBody.employee.is_new);

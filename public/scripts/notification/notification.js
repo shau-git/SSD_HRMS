@@ -35,7 +35,6 @@ async function fetchResponse(path, leave_read) {
 
             } // for employee only can read the leave response
         }
-console.log(url)
 
         // Make a GET request to your API endpoint
         const response = await fetch(url, {

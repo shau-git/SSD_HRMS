@@ -3,8 +3,9 @@ async function updateManagerId(AttendanceIdToEdit, newManagerId, path, table , m
     try {
         messageDiv.textContent = `Updating manager id to ${newManagerId}...`;
         messageDiv.style.color = "blue";
-
-        const response = await fetch(`${apiBaseUrl}${path}${AttendanceIdToEdit}`, { 
+console.log(`${apiBaseUrl}${path}${AttendanceIdToEdit}`)
+console.log('manager')
+        const response = await fetch(`${apiBaseUrl}${path}${AttendanceIdToEdit}`, {  
         method: 'PUT', // Use PUT or PATCH for updates
         headers: {
             'Content-Type': 'application/json',

@@ -45,10 +45,11 @@ function convertToSGT(date) {
     const timezoneOffset = now.getTimezoneOffset() * 60000; // Offset in milliseconds
 
     // this line can only works in development
-    const localISOTime = new Date(now - timezoneOffset)
+    //const localISOTime = new Date(now - timezoneOffset)
     
     // this line can only works in production
-    //const localISOTime = now.setMinutes(now.getMinutes() + 480)
+    now.setMinutes(now.getMinutes() + 480)
+    const localISOTime = now.toISOString()
     
     return localISOTime// Still ends with "Z" (UTC)
 }

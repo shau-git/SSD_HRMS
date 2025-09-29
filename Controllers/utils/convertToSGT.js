@@ -41,12 +41,16 @@ function getDataWithSGT(sequelizeQueries) {
 // function to convert datetime to SGT
 function convertToSGT(date) {
     const now = new Date(date)
-    console.log('-_-_-_-_-_-_-',now)
 
     const timezoneOffset = now.getTimezoneOffset() * 60000; // Offset in milliseconds
 
-    const localISOTime = new Date(now - timezoneOffset)//.toISOString();
-console.log(now.getTimezoneOffset(), timezoneOffset, localISOTime , "+-+-+-+-+_+-+-+-+-+-")
+    // this line can only works in development
+    //const localISOTime = new Date(now - timezoneOffset)//.toISOString();
+    
+    // this line can only works in production
+    now.setMinutes(date.getMinutes() + 480)
+    const localISOTime = now.toISOString(); 
+    
     return localISOTime// Still ends with "Z" (UTC)
 }
 

@@ -46,7 +46,7 @@ function convertToSGT(date) {
     const timezoneOffset = now.getTimezoneOffset() * 60000; // Offset in milliseconds
 
     const localISOTime = new Date(now - timezoneOffset)//.toISOString();
-console.log(timezoneOffset, localISOTime , "+-+-+-+-+_+-+-+-+-+-")
+console.log(now.getTimezoneOffset(), timezoneOffset, localISOTime , "+-+-+-+-+_+-+-+-+-+-")
     return localISOTime// Still ends with "Z" (UTC)
 }
 

@@ -11,7 +11,7 @@ const createDateFilter = require("./utils/createDateQuery")
 
 
 // get the date only from ex: "2025-08-06T00:00:00.000Z" => '2025-08-06'
-const todayDate = getCurrentTimeSGT().toISOString().split('T')[0]
+const todayDate = getCurrentTimeSGT().toString().split('T')[0]
 console.log('today date', todayDate)
 
 

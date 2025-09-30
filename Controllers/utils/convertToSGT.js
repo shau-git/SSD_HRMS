@@ -47,7 +47,8 @@ function convertToSGT(date) {
     // const localISOTime = new Date(now - timezoneOffset)
 
     // this line can only works in production (render.com)
-    const localISOTime = date.setMinutes(date.getMinutes() + 480)//new Date(date.setMinutes(date.getMinutes() + 480));//new Date(date.setMinutes(date.getHours() + 8));
+    date.setMinutes(date.getMinutes() + 480)//new Date(date.setMinutes(date.getMinutes() + 480));//new Date(date.setMinutes(date.getHours() + 8));
+    const localISOTime = date.toISOString()
     console.log('_+_+_+_+_+_+', localISOTime)
 
     return localISOTime// Still ends with "Z" (UTC)

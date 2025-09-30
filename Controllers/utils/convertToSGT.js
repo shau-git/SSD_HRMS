@@ -29,7 +29,7 @@ function getDataWithSGT(sequelizeQueries) {
         for( let [field, value] of Object.entries(record)) {
  
             if (dateField.includes(field) && value) {
-                record[field] = convertToSGT(value)
+                record[field] = value//convertToSGT(value)
             }
         }
     })

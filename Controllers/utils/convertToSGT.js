@@ -39,7 +39,7 @@ function getDataWithSGT(sequelizeQueries) {
 
 
 // function to convert datetime to SGT
-function convertToSGT(date) {
+function convertToSGT(date, current = false) {
     
     // this line can only works in development
     // const now = new Date(date)
@@ -48,7 +48,7 @@ function convertToSGT(date) {
 
     // this line can only works in production (render.com)
     let localISOTime;
-    if (date == new Date()) {
+    if (current) {
         date.setMinutes(date.getMinutes() + 480)//new Date(date.setMinutes(date.getMinutes() + 480));
     } 
     
@@ -61,7 +61,7 @@ function convertToSGT(date) {
 
 // get current time in SGT
 function getCurrentTimeSGT() {
-    return convertToSGT(new Date())
+    return convertToSGT(new Date(), true)
 }
 
 
